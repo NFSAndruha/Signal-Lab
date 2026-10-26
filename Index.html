@@ -1,0 +1,3179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#181a20">
+    <title>Signals Lab Pro</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+    <style>
+        :root {
+            --bg: #181a20;
+            --surface: #1e2026;
+            --surface-variant: #2b2f36;
+            --border: #2b2f36;
+            --text-main: #eaecef;
+            --text-muted: #848e9c;
+            --primary: #f0b90b;
+            --primary-on: #000000;
+            --up: #0ecb81;
+            --dn: #f6465d;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --font-family: 'Roboto', system-ui, sans-serif;
+            --chart-bg: #121418;
+            --chart-height: 420px;
+            --chart-btn-size: 32px;
+            --chart-btn-icon: 16px;
+            --card-gradient-start: var(--surface);
+            --card-gradient-end: rgba(30, 32, 38, 0.8);
+        }
+
+        body.light-theme {
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --surface-variant: #e8ecef;
+            --border: #d0d5dd;
+            --text-main: #181a20;
+            --text-muted: #667085;
+            --primary: #f0b90b;
+            --primary-on: #000000;
+            --chart-bg: #f8f9fa;
+            --card-gradient-start: #ffffff;
+            --card-gradient-end: #f0f3f6;
+        }
+
+        body.theme-cyan { --primary: #00bcd4; --primary-on: #000000; }
+        body.theme-pink { --primary: #e91e63; --primary-on: #ffffff; }
+        body.theme-emerald { --primary: #26a69a; --primary-on: #000000; }
+        body.theme-orange { --primary: #ff9800; --primary-on: #000000; }
+        body.theme-purple { --primary: #9c27b0; --primary-on: #ffffff; }
+        body.theme-blue { --primary: #2196f3; --primary-on: #000000; }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: var(--text-main); font-family: var(--font-family); padding: 12px 12px 110px; max-width: 640px; margin: auto; transition: background 0.3s, color 0.3s; }
+        button { position: relative; overflow: hidden; cursor: pointer; border: 0; outline: none; font-family: inherit; transition: 0.2s; }
+        
+        .top { display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 12px; }
+        .logo { font-weight: 700; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px; }
+        .logo svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .pill { border: 0; background: var(--surface-variant); color: var(--text-main); border-radius: var(--radius-md); font-weight: 500; padding: 6px 12px; font-size: 12px; }
+        .pill.live { color: var(--up); background: rgba(14, 203, 129, 0.12); }
+        .pill.demo { color: var(--primary); background: rgba(240, 185, 11, 0.12); }
+        
+        .controls-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+        .select-input-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 10px 12px; border-radius: var(--radius-md); font-weight: 700; font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .select-input-btn::after { content: '▼'; font-size: 10px; color: var(--text-muted); margin-left: 6px; }
+        
+        .tabs-header { display: flex; gap: 8px; margin-bottom: 12px; }
+        .tab-btn { flex: 1; background: var(--surface-variant); padding: 10px; border-radius: var(--radius-md); color: var(--text-muted); font-weight: 700; font-size: 13px; text-align: center; }
+        .tab-btn.on { background: var(--primary); color: var(--primary-on); }
+        
+        .tab-btn.fav-tab { 
+            flex: 0 0 42px; 
+            width: 42px; 
+            height: 42px; 
+            padding: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px; 
+        }
+        
+        .tile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .tile { background: var(--surface); border-radius: var(--radius-lg); padding: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+        .tile.full { grid-column: span 2; }
+        
+        .tile.price-card { padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+        .price-main-row { display: flex; justify-content: space-between; align-items: center; }
+        .price-info-group { display: flex; align-items: baseline; gap: 8px; }
+        .price-huge { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
+        .price-vol-group { display: flex; flex-direction: column; align-items: flex-end; }
+
+        .tile-title { font-size: 9px; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; text-transform: uppercase; white-space: nowrap; }
+        .tile-content-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+        .tile-value { font-size: 13px; font-weight: 700; }
+        
+        .tile-grid > .tile:not(.price-card) { padding: 8px 12px; justify-content: space-between; }
+        .tile-grid > .tile:not(.price-card) .tile-title { margin-bottom: 0px; }
+        .tile-grid > .tile:not(.price-card) .tile-content-row { margin-top: 0px; }
+
+        .tile-visual-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; }
+        .tile-visual-icon.up { background: rgba(14, 203, 129, 0.15); color: var(--up); }
+        .tile-visual-icon.dn { background: rgba(246, 70, 93, 0.15); color: var(--dn); }
+        .tile-visual-icon.flat { background: rgba(240, 185, 11, 0.15); color: var(--primary); }
+
+        .volatility-sparkline { width: 50px; height: 24px; display: block; }
+        .chg-badge { display: inline-block; font-weight: 700; padding: 2px 4px; border-radius: 4px; font-size: 10px; }
+        
+        .rm-inline-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .rm-inline-grid.has-lev { grid-template-columns: repeat(4, 1fr); }
+        .rm-chip { background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; min-height: 42px; transition: 0.2s; }
+        .rm-chip:active { border-color: var(--primary); }
+        .rm-chip .rm-lbl { font-size: 9px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; line-height: 1; margin-bottom: 3px; }
+        .rm-chip .rm-val, .rm-chip-input { font-size: 13px; font-weight: 700; color: var(--text-main); background: transparent; border: none; outline: none; text-align: center; width: 100%; padding: 0; line-height: 1.2; }
+        .rm-chip-input::-webkit-outer-spin-button, .rm-chip-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .canvas-container { position: relative; width: 100%; background: var(--chart-bg); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+        canvas { width: 100%; height: var(--chart-height); display: block; cursor: crosshair; touch-action: pan-y; }
+        
+        #chart-card:fullscreen { width: 100vw !important; height: 100vh !important; max-width: none !important; max-height: none !important; border-radius: 0 !important; border: none !important; display: flex; flex-direction: column; background: var(--chart-bg); padding: 0 !important; margin: 0 !important; }
+        #chart-card:fullscreen .canvas-container { flex: 1; width: 100%; height: 100%; border: none; border-radius: 0; }
+        #chart-card:fullscreen canvas { width: 100% !important; height: 100% !important; }
+
+        .canvas-container-scanner { position: relative; width: 100%; background: var(--chart-bg); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); padding-bottom: 24px; margin-top: 10px; }
+        .canvas-container-scanner canvas { width: 100%; height: 210px; display: block; touch-action: pan-y; }
+
+        .scanner-tf-row { display: flex; gap: 4px; margin-top: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+        .scanner-tf-row::-webkit-scrollbar { display: none; }
+        .scanner-tf-btn { background: var(--surface-variant); border: 1px solid var(--border); color: var(--text-muted); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .scanner-tf-btn.on { background: var(--primary); color: var(--primary-on); border-color: var(--primary); }
+
+        .chart-controls { position: absolute; top: 6px; left: 6px; display: flex; gap: 4px; align-items: center; z-index: 5; flex-wrap: wrap; max-width: calc(100% - 12px); }
+        .chart-tf-pills { display: flex; gap: 3px; background: var(--surface); padding: 2px; border-radius: 6px; border: 1px solid var(--border); backdrop-filter: blur(4px); overflow-x: auto; max-width: 154px; scrollbar-width: none; }
+        .chart-tf-pills::-webkit-scrollbar { display: none; }
+        .chart-tf-pill { background: transparent; border: none; color: var(--text-muted); font-size: calc(var(--chart-btn-size) * 0.32); font-weight: 700; padding: 0 5px; height: calc(var(--chart-btn-size) - 4px); display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+        .chart-tf-pill.on { background: var(--primary); color: var(--primary-on); }
+
+        .chart-btn { background: var(--surface); color: var(--text-main); border-radius: 6px; width: var(--chart-btn-size); height: var(--chart-btn-size); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); backdrop-filter: blur(4px); flex-shrink: 0; }
+        .chart-btn svg { display: block; margin: auto; width: var(--chart-btn-icon); height: var(--chart-btn-icon); }
+        
+        .chart-popover { position: absolute; top: calc(var(--chart-btn-size) + 12px); left: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; width: 250px; z-index: 10; display: none; backdrop-filter: blur(8px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        .chart-popover.on { display: block; }
+        .chart-popover-title { font-weight: 700; font-size: 12px; color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        
+        .subindicator-selector { display: flex; gap: 4px; background: transparent; padding: 6px 8px; overflow-x: auto; width: 100%; border-top: 1px solid var(--border); scrollbar-width: none; }
+        .subindicator-selector::-webkit-scrollbar { display: none; }
+        .subind-btn { background: var(--surface-variant); color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 10px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+        .subind-btn.on { color: var(--primary); border-color: var(--primary); background: rgba(240, 185, 11, 0.15); }
+
+        .up { color: var(--up); } .dn { color: var(--dn); } .mut { color: var(--text-muted); font-size: 12px; }
+        .tag { font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 11px; letter-spacing: 0.3px; }
+        .tag.up { background: rgba(14, 203, 129, 0.15); color: var(--up); }
+        .tag.dn { background: rgba(246, 70, 93, 0.15); color: var(--dn); }
+        
+        .signal-card-pro { background: linear-gradient(145deg, var(--card-gradient-start) 0%, var(--card-gradient-end) 100%); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all 0.25s ease; position: relative; overflow: hidden; }
+        .signal-card-pro::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--border); transition: background 0.25s; }
+        .signal-card-pro.long::before { background: var(--up); }
+        .signal-card-pro.short::before { background: var(--dn); }
+        .signal-card-pro:hover { border-color: rgba(240, 185, 11, 0.4); transform: translateY(-1px); }
+
+        .signal-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .signal-title-group { display: flex; flex-direction: column; gap: 2px; }
+        .signal-asset-name { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+        .signal-strat-name { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        
+        .signal-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: var(--surface-variant); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 12px; }
+        .signal-metric-item { display: flex; flex-direction: column; gap: 2px; }
+        .signal-metric-label { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .signal-metric-val { font-size: 13px; font-weight: 700; }
+
+        .signal-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 8px; }
+
+        .filter-pills-row { display: flex; gap: 6px; margin-bottom: 12px; }
+        .filter-pill { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); border-radius: var(--radius-md); padding: 6px 12px; font-size: 11px; font-weight: 700; cursor: pointer; flex: 1; text-align: center; }
+        .filter-pill.on { background: var(--primary); color: var(--primary-on); border-color: var(--primary); }
+        .filter-pill.on-long { background: var(--up) !important; color: #000000 !important; border-color: var(--up) !important; }
+        .filter-pill.on-short { background: var(--dn) !important; color: #ffffff !important; border-color: var(--dn) !important; }
+
+        .grid3-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 10px; }
+        .card-box { background: var(--surface-variant); border-radius: var(--radius-md); padding: 10px 8px; text-align: center; border: 1px solid var(--border); }
+        .card-box span { display: block; font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .card-box strong { font-size: 14px; font-weight: 700; }
+        
+        .scanner-top-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+        button.b { border-radius: var(--radius-md); height: 42px; font-weight: 700; color: var(--primary-on); background: var(--primary); flex: 1.5; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        
+        .switch-container { display: flex; align-items: center; background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 3px; height: 42px; flex: 1.5; justify-content: space-between; cursor: pointer; user-select: none; }
+        .switch-opt { flex: 1; text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); padding: 8px 4px; border-radius: 6px; transition: 0.2s; white-space: nowrap; }
+        .switch-opt.on { background: var(--primary); color: var(--primary-on); border: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+        .tab { display: none; } .tab.on { display: block; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        td, th { padding: 8px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+        
+        .opt { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); justify-content: space-between; font-size: 13px; font-weight: 500; cursor: pointer; }
+        .opt input[type=checkbox] { -webkit-appearance: none; appearance: none; width: 40px; height: 22px; margin: 0; border-radius: 11px; border: 1px solid var(--text-muted); background: var(--surface-variant); position: relative; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .opt input[type=checkbox]::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-muted); transition: 0.2s; }
+        .opt input[type=checkbox]:checked { background: var(--primary); border-color: var(--primary); }
+        .opt input[type=checkbox]:checked::after { left: 20px; background: var(--primary-on); }
+        
+        .text-input { width: 100%; background: var(--surface-variant); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; outline: none; margin-top: 4px; }
+        .rm-field-btn { width: 100%; height: 36px; padding: 0 8px; font-size: 13px; font-weight: 700; background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); display: flex; align-items: center; justify-content: space-between; outline: none; }
+
+        /* Стили для открывающихся карточек настроек (аккордеон) */
+        .settings-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 10px; overflow: hidden; transition: border-color 0.2s; }
+        .settings-card:hover { border-color: rgba(240, 185, 11, 0.4); }
+        .settings-card-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; background: var(--surface); }
+        .settings-card-left { display: flex; align-items: center; gap: 10px; }
+        .settings-card-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(240, 185, 11, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .settings-card-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .settings-card-title-group { display: flex; flex-direction: column; gap: 1px; }
+        .settings-card-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .settings-card-subtitle { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+        .settings-card-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.25s ease; }
+        .settings-card.open .settings-card-arrow { transform: rotate(180deg); color: var(--primary); }
+        .settings-card-body { padding: 0 16px 14px 16px; display: none; border-top: 1px solid var(--border); background: var(--surface); }
+        .settings-card.open .settings-card-body { display: block; }
+
+        .strategy-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; width: 100%; }
+        .strategy-chip { background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: 0.2s; user-select: none; position: relative; min-height: 64px; }
+        .strategy-chip.on { border-color: var(--primary); background: rgba(240, 185, 11, 0.08); }
+        .strategy-chip-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; }
+        .strategy-chip-title { font-size: 12px; font-weight: 700; color: var(--text-main); line-height: 1.2; word-break: break-word; }
+        .strategy-chip-desc { font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .strategy-info-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .strategy-info-btn:hover { color: var(--primary); border-color: var(--primary); }
+
+        nav { position: fixed; left: 12px; right: 12px; bottom: 12px; display: flex; justify-content: space-around; align-items: center; padding: 8px 12px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(0,0,0,0.5); z-index: 10; }
+        nav button { background: none; color: var(--text-muted); font-size: 11px; font-weight: 500; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: var(--radius-md); transition: all 0.2s; }
+        nav button .nav-icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; }
+        nav button.on { color: var(--primary); background: var(--surface-variant); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 100; padding: 16px; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+        .modal.on { display: flex; }
+        .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 480px; max-height: 80vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .modal-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 16px; }
+        .modal-body { padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .modal-close { background: var(--surface-variant); color: var(--text-main); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 700; font-size: 12px; }
+        
+        .modal-tools { display: flex; gap: 6px; width: 100%; }
+        .search-input { width: 100%; background: var(--surface-variant); border: 1px solid var(--border); color: var(--text-main); padding: 10px 14px; border-radius: var(--radius-md); font-size: 14px; outline: none; }
+        .sort-btn { flex: 1; background: var(--surface-variant); border: 1px solid var(--border); color: var(--text-main); padding: 8px 6px; border-radius: var(--radius-md); font-size: 11px; font-weight: 700; text-align: center; white-space: nowrap; }
+        .sort-btn.on { border-color: var(--primary); color: var(--primary); background: rgba(240, 185, 11, 0.08); }
+
+        .coin-item { background: var(--surface-variant); border: 1px solid transparent; padding: 12px 14px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .coin-item.on { border-color: var(--primary); }
+        .coin-info { display: flex; align-items: center; gap: 10px; }
+        .coin-ticker { font-weight: 700; font-size: 15px; }
+        .coin-vol { font-size: 11px; color: var(--text-muted); }
+        .coin-price { font-weight: 700; font-size: 14px; text-align: right; }
+        
+        .star-icn { background: none; border: 0; padding: 4px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; }
+        .star-icn.on { color: var(--primary); }
+        .star-icn svg { width: 20px; height: 20px; fill: currentColor; }
+
+        .custom-select-list { display: flex; flex-direction: column; gap: 8px; }
+        .custom-select-item { background: var(--surface-variant); border: 1px solid var(--border); padding: 12px 14px; border-radius: var(--radius-md); font-weight: 700; font-size: 14px; color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .custom-select-item.on { border-color: var(--primary); color: var(--primary); background: rgba(240, 185, 11, 0.08); }
+
+        .gauge-card { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; }
+        .gauge-val { font-size: 32px; font-weight: 700; margin-top: 6px; }
+        .gauge-lbl { font-size: 13px; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+
+        .dom-bar { height: 16px; border-radius: 8px; display: flex; overflow: hidden; margin: 12px 0 6px; background: var(--surface-variant); }
+        .dom-btc { background: #f7931a; transition: width 0.3s; }
+        .dom-alt { background: #627eea; transition: width 0.3s; }
+
+        .api-alert-banner { background: rgba(246, 70, 93, 0.15); border: 1px solid var(--dn); color: var(--dn); padding: 8px 12px; border-radius: var(--radius-md); font-size: 12px; font-weight: 700; margin-bottom: 8px; display: none; text-align: center; }
+        .api-alert-banner.on { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="top" id="top-bar-global">
+    <span class="logo">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Signals Lab
+    </span>
+    <span class="pill demo" id="st">…</span>
+</div>
+
+<div class="api-alert-banner" id="api-alert-banner">Внимание: Данные не могут подгрузиться. Проверьте соединение или API.</div>
+
+<div class="tabs-header" id="global-tabs-header">
+    <button class="tab-btn fav-tab" id="tab-fav" onclick="setMarketType('FAVS')">★</button>
+    <button class="tab-btn on" id="tab-spot" onclick="setMarketType('SPOT')">SPOT</button>
+    <button class="tab-btn" id="tab-fut" onclick="setMarketType('FUTURES')">FUTURES</button>
+    <button class="tab-btn" id="tab-stocks" onclick="setMarketType('STOCKS')">STOCKS</button>
+</div>
+
+<div class="controls-row" id="global-controls-row">
+    <button class="select-input-btn" id="coin-select" onclick="openCoinModal()">Загрузка...</button>
+    <button class="select-input-btn" id="tf-select-btn" style="flex: 0.4;" onclick="openTfModal()">1h</button>
+</div>
+
+<section class="tab" id="t0">
+    <div class="tile-grid">
+        <div class="tile price-card full">
+            <div class="tile-title" id="sy">BTC / USDT</div>
+            <div class="price-main-row">
+                <div class="price-info-group">
+                    <div class="price-huge" id="pr">—</div>
+                    <div id="ch"></div>
+                </div>
+                <div class="price-vol-group">
+                    <span class="mut" style="font-size: 9px; text-transform: uppercase;">Объем</span>
+                    <span id="vol-24h" style="font-weight: 700; font-size: 12px;">—</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tile">
+            <div class="tile-title">Тренд</div>
+            <div class="tile-content-row">
+                <div class="tile-value" id="tr">—</div>
+                <div id="tr-visual" class="tile-visual-icon flat">≈</div>
+            </div>
+        </div>
+
+        <div class="tile">
+            <div class="tile-title">Волатильность</div>
+            <div class="tile-content-row">
+                <div class="tile-value" id="vo">—</div>
+                <canvas id="vol-sparkline-cv" class="volatility-sparkline" width="50" height="24" title="График амплитуды"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile full" id="chart-card" style="padding:0; margin-bottom: 12px; overflow:hidden;">
+        <div class="canvas-container">
+            <canvas id="cv"></canvas>
+            <div class="chart-controls">
+                <div class="chart-tf-pills">
+                    <button class="chart-tf-pill" onclick="selectTf('1m')">1m</button>
+                    <button class="chart-tf-pill" onclick="selectTf('5m')">5m</button>
+                    <button class="chart-tf-pill" onclick="selectTf('15m')">15m</button>
+                    <button class="chart-tf-pill" onclick="selectTf('1h')">1h</button>
+                    <button class="chart-tf-pill" onclick="selectTf('4h')">4h</button>
+                    <button class="chart-tf-pill" onclick="selectTf('1d')">1d</button>
+                    <button class="chart-tf-pill" onclick="selectTf('1w')">1w</button>
+                    <button class="chart-tf-pill" onclick="selectTf('1M')">1M</button>
+                </div>
+                <button class="chart-btn" id="ind-btn" title="Индикаторы на графике">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                </button>
+                <button class="chart-btn" id="cfg-btn" title="Настройки графика">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+                <button class="chart-btn" id="rotate-h-btn" style="display:none;" title="Альбомный режим" onclick="rotateScreen('landscape')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 11v2"/></svg>
+                </button>
+                <button class="chart-btn" id="rotate-v-btn" style="display:none;" title="Портретный режим" onclick="rotateScreen('portrait')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 16h2"/></svg>
+                </button>
+                <button class="chart-btn" id="fs-btn" title="Экран">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </button>
+            </div>
+            
+            <div class="chart-popover" id="indicators-popover">
+                <div class="chart-popover-title">Индикаторы на графике</div>
+                <label class="opt"><input type="checkbox" id="em"><span>EMA 20/50</span></label>
+                <label class="opt"><input type="checkbox" id="fv"><span>Зоны FVG</span></label>
+                <label class="opt"><input type="checkbox" id="ob"><span>Order Block</span></label>
+                <label class="opt"><input type="checkbox" id="lq"><span>Уровни ликвидности</span></label>
+                <label class="opt"><input type="checkbox" id="sig-arrows"><span>Стрелки сигналов</span></label>
+                <label class="opt"><input type="checkbox" id="chart-extremums-chk"><span>Метки экстремумов (H/L)</span></label>
+            </div>
+
+            <div class="chart-popover" id="chart-popover">
+                <div class="chart-popover-title">Настройки графика</div>
+                <div class="opt" style="flex-direction: column; align-items: flex-start; gap: 4px;" onclick="openChartTypeModal()">
+                    <span style="font-size:12px; color:var(--text-muted);">Тип графика</span>
+                    <button class="rm-field-btn" id="chart-type-btn" style="width:100%;">Свечи (Candles)</button>
+                </div>
+                <div class="opt" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 6px;" onclick="openChartCandleStyleModal()">
+                    <span style="font-size:12px; color:var(--text-muted);">Цветовая схема свечей</span>
+                    <button class="rm-field-btn" id="chart-candle-style-btn" style="width:100%;">Классика</button>
+                </div>
+                <div class="opt" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 6px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <span style="font-size:12px; color:var(--text-muted);">Высота графика</span>
+                        <span id="chart-height-val" style="font-size:12px; font-weight:700; color:var(--primary);">420px</span>
+                    </div>
+                    <input type="range" id="chart-height-slider" min="300" max="700" step="20" value="420" style="width:100%; accent-color:var(--primary); cursor:pointer; margin-top:2px;" oninput="updateChartHeightLive(this.value)" onchange="saveChartHeight(this.value)">
+                </div>
+                <div class="opt" style="flex-direction: column; align-items: flex-start; gap: 4px; margin-top: 6px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <span style="font-size:12px; color:var(--text-muted);">Размер кнопок на графике</span>
+                        <span id="chart-btn-size-val" style="font-size:12px; font-weight:700; color:var(--primary);">36px</span>
+                    </div>
+                    <input type="range" id="chart-btn-size-slider" min="25" max="40" step="1" value="36" style="width:100%; accent-color:var(--primary); cursor:pointer; margin-top:2px;" oninput="updateChartBtnSizeLive(this.value)" onchange="saveChartBtnSize(this.value)">
+                </div>
+                <label class="opt" style="margin-top: 6px;"><input type="checkbox" id="chart-grid-chk"><span>Сетка координат</span></label>
+                <label class="opt"><input type="checkbox" id="chart-thick-chk"><span>Утолщённые линии свечей</span></label>
+            </div>
+
+            <div class="subindicator-selector">
+                <button class="subind-btn" id="subind-rsi" onclick="setSubIndicator('RSI')">RSI</button>
+                <button class="subind-btn" id="subind-vol" onclick="setSubIndicator('VOL')">VOL</button>
+                <button class="subind-btn" id="subind-macd" onclick="setSubIndicator('MACD')">MACD</button>
+                <button class="subind-btn" id="subind-stoch" onclick="setSubIndicator('STOCH')">STOCH</button>
+                <button class="subind-btn" id="subind-atr" onclick="setSubIndicator('ATR')">ATR</button>
+                <button class="subind-btn" id="subind-bbw" onclick="setSubIndicator('BBW')">BBW</button>
+                <button class="subind-btn" id="subind-cci" onclick="setSubIndicator('CCI')">CCI</button>
+                <button class="subind-btn" id="subind-mfi" onclick="setSubIndicator('MFI')">MFI</button>
+                <button class="subind-btn" id="subind-obv" onclick="setSubIndicator('OBV')">OBV</button>
+                <button class="subind-btn" id="subind-roc" onclick="setSubIndicator('ROC')">ROC</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding:12px 14px; display: flex; flex-direction: column; justify-content: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <b style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Risk Management</b>
+        </div>
+        <div class="rm-inline-grid" id="rm-box" style="margin-bottom: 6px;">
+            <button class="rm-chip" onclick="openRrModal()">
+                <span class="rm-lbl">RR</span>
+                <span class="rm-val" id="rr-btn">2</span>
+            </button>
+            
+            <button class="rm-chip" id="lev-field-wrap" onclick="openLevModal()">
+                <span class="rm-lbl">Плечо</span>
+                <span class="rm-val" id="lev-btn">5x</span>
+            </button>
+
+            <div class="rm-chip">
+                <span class="rm-lbl">Деп ($)</span>
+                <input type="number" id="cap" value="150" class="rm-chip-input" oninput="updateRiskCalc()">
+            </div>
+
+            <div class="rm-chip">
+                <span class="rm-lbl">Риск %</span>
+                <input type="number" id="rk" value="1" step="0.1" class="rm-chip-input" oninput="updateRiskCalc()">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;">
+            <div style="background: rgba(246, 70, 93, 0.08); border: 1px solid var(--border); border-left: 3px solid var(--dn); border-radius: var(--radius-md); padding: 6px 10px; display: flex; flex-direction: column; justify-content: center;">
+                <span class="rm-calc-lbl" style="color: var(--dn);">Убыток (Риск)</span>
+                <span class="rm-calc-val" id="calc-risk-usd" style="color: var(--text-main); font-size: 13px; font-weight: 700; margin-top: 2px;">$1.50</span>
+            </div>
+            <div style="background: rgba(14, 203, 129, 0.08); border: 1px solid var(--border); border-left: 3px solid var(--up); border-radius: var(--radius-md); padding: 6px 10px; display: flex; flex-direction: column; justify-content: center;">
+                <span class="rm-calc-lbl" style="color: var(--up);">Профит (TP)</span>
+                <span class="rm-calc-val" id="calc-profit-usd" style="color: var(--text-main); font-size: 13px; font-weight: 700; margin-top: 2px;">$3.00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding:14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <b style="font-size:12px; color:var(--text-muted); text-transform:uppercase;">Активные стратегии: последние сигналы</b>
+            <span class="mut" id="active-strat-count">0 активных</span>
+        </div>
+        <div id="all-active-strategies-signals"></div>
+    </div>
+</section>
+
+<section class="tab" id="t1">
+    <div class="tile full" style="margin-bottom:12px;">
+        <b>Результаты стратегий</b><span class="mut"> (история)</span>
+        <table><tr><th>Стратегия</th><th>Сделок</th><th>Win</th><th>ΣR</th></tr><tbody id="sts"></tbody></table>
+    </div>
+    <div class="tile full" style="margin-bottom:12px;">
+        <b>Конфлюэнс с зонами</b>
+        <table><tr><th>Вход</th><th>Сделок</th><th>Win</th><th>ΣR</th><th>Ср. R</th></tr><tbody id="cfs"></tbody></table>
+    </div>
+    <div class="filter-pills-row">
+        <button class="filter-pill on" id="sig-filt-all" onclick="setSignalsFilter('ALL')">Все сигналы</button>
+        <button class="filter-pill" id="sig-filt-long" onclick="setSignalsFilter('LONG')">▲ Long</button>
+        <button class="filter-pill" id="sig-filt-short" onclick="setSignalsFilter('SHORT')">▼ Short</button>
+    </div>
+    <div id="ls"></div>
+</section>
+
+<section class="tab" id="t2">
+    <div class="tile full" style="margin-bottom:12px;">
+        <b>Сканер рынка</b>
+        <p class="mut">Поиск сигналов по всем активам на выбранном таймфрейме.</p>
+        <div class="scanner-top-row">
+            <button class="b" id="sb">Запустить сканер</button>
+            <div class="switch-container" onclick="toggleScanScope()">
+                <div class="switch-opt" id="sw-all">Все монеты</div>
+                <div class="switch-opt" id="sw-fav">★ Избранное</div>
+            </div>
+        </div>
+    </div>
+    <div class="filter-pills-row">
+        <button class="filter-pill on" id="scan-filt-all" onclick="setScanFilter('ALL')">Все сигналы</button>
+        <button class="filter-pill" id="scan-filt-long" onclick="setScanFilter('LONG')">▲ Long</button>
+        <button class="filter-pill" id="scan-filt-short" onclick="setScanFilter('SHORT')">▼ Short</button>
+    </div>
+    <div id="sc"></div>
+</section>
+
+<!-- Вкладка РЫНОК -->
+<section class="tab" id="t3">
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Обзор крипторынка (24ч)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px;">
+                <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Капитализация (Total)</span>
+                <strong style="display: block; font-size: 14px; color: var(--text-main); margin-top: 2px;" id="mkt-total-cap">$2.48T</strong>
+                <span class="up" style="font-size: 10px; font-weight: 700;">+1.42%</span>
+            </div>
+            <div style="background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px;">
+                <span style="font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Суточный объем</span>
+                <strong style="display: block; font-size: 14px; color: var(--text-main); margin-top: 2px;" id="mkt-total-vol">$78.4B</strong>
+                <span class="dn" style="font-size: 10px; font-weight: 700;">-3.15%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Индекс Страха и Жадности</div>
+        <div class="gauge-card" style="padding: 4px 0 0 0;">
+            <canvas id="gauge-cv" width="320" height="60" style="width:100%; height:60px;"></canvas>
+            <div class="gauge-val" id="mkt-fg-val" style="font-size: 28px; margin-top: 2px;">—</div>
+            <div class="gauge-lbl" id="mkt-fg-lbl" style="font-size: 11px;">—</div>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <b id="heatmap-title-label" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; display: block; overflow: hidden; text-overflow: ellipsis; font-weight: 700;">Тепловая карта топ-монет — BINANCE</b>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px;" id="heatmap-grid"></div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Доминация Bitcoin vs Altcoins</div>
+            <div class="chart-tf-pills" style="max-width: none;">
+                <button class="chart-tf-pill dom-tf-btn" onclick="setDomTf('1h')">1h</button>
+                <button class="chart-tf-pill dom-tf-btn" onclick="setDomTf('4h')">4h</button>
+                <button class="chart-tf-pill dom-tf-btn on" onclick="setDomTf('1d')">1d</button>
+                <button class="chart-tf-pill dom-tf-btn" onclick="setDomTf('1w')">1w</button>
+                <button class="chart-tf-pill dom-tf-btn" onclick="setDomTf('1M')">1m</button>
+            </div>
+        </div>
+        <div class="dom-bar" style="margin: 8px 0 4px 0;">
+            <div class="dom-btc" id="dom-btc-bar" style="width: 58%;"></div>
+            <div class="dom-alt" id="dom-alt-bar" style="width: 42%;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:12px; margin-bottom:8px;">
+            <span style="color:#f7931a;" id="dom-btc-txt">BTC: 58.0%</span>
+            <span style="color:#627eea;" id="dom-alt-txt">ALTS: 42.0%</span>
+        </div>
+        <div style="width:100%; height:170px; position:relative; background: var(--chart-bg); border-radius: var(--radius-md); border: 1px solid var(--border); overflow:hidden;">
+            <canvas id="dom-chart-cv" style="width:100%; height:170px; display:block; cursor:crosshair; touch-action:pan-y;"></canvas>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Ликвидации за 24ч (Long/Short Squeeze)</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div style="background: rgba(14, 203, 129, 0.08); border: 1px solid var(--border); border-left: 3px solid var(--up); border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; justify-content: center;">
+                <span style="font-size: 9px; color: var(--up); text-transform: uppercase; font-weight: 700;">Лонги ликвидированы</span>
+                <strong style="display: block; font-size: 14px; color: var(--text-main); margin-top: 2px;" id="liq-long-val">$42.5M</strong>
+            </div>
+            <div style="background: rgba(246, 70, 93, 0.08); border: 1px solid var(--border); border-left: 3px solid var(--dn); border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; justify-content: center;">
+                <span style="font-size: 9px; color: var(--dn); text-transform: uppercase; font-weight: 700;">Шорты ликвидированы</span>
+                <strong style="display: block; font-size: 14px; color: var(--text-main); margin-top: 2px;" id="liq-short-val">$98.2M</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="tile full" style="margin-bottom:12px; padding: 14px;">
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Комиссии сети (Gas Tracker)</div>
+        <div style="background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Ethereum Gas (DEX / Transact)</span>
+            <span style="font-size: 13px; font-weight: 700; color: var(--primary);" id="eth-gas-val">18 Gwei (Fast)</span>
+        </div>
+    </div>
+</section>
+
+<!-- Вкладка НАСТРОЙКИ (Переработана в виде карточек-аккордеонов с иконками и описаниями) -->
+<section class="tab" id="t4">
+    <!-- Карточка 1: Стратегии -->
+    <div class="settings-card" id="set-card-strategies">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-strategies')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Стратегии</span>
+                    <span class="settings-card-subtitle">Алгоритмы и триггеры</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <p class="mut" style="font-size: 11px; margin-top: 4px; margin-bottom: 8px;">Активация торговых моделей для поиска точек входа.</p>
+            <div class="strategy-grid" id="so"></div>
+        </div>
+    </div>
+
+    <!-- Карточка 2: Визуальные стили -->
+    <div class="settings-card" id="set-card-styles">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-styles')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Визуальные стили</span>
+                    <span class="settings-card-subtitle">Тема, цвета, шрифты</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <div class="opt" onclick="openThemeModal()">
+                <span>Тема интерфейса</span>
+                <button class="rm-field-btn" id="theme-btn" style="width:140px;">Тёмная</button>
+            </div>
+            <div class="opt" onclick="openAccentModal()">
+                <span>Цвет акцента</span>
+                <button class="rm-field-btn" id="accent-btn" style="width:140px;">Жёлтый</button>
+            </div>
+            <div class="opt" onclick="openRadiusModal()">
+                <span>Скругление карточек</span>
+                <button class="rm-field-btn" id="radius-btn" style="width:140px;">Среднее</button>
+            </div>
+            <div class="opt" onclick="openFontModal()">
+                <span>Шрифт интерфейса</span>
+                <button class="rm-field-btn" id="font-btn" style="width:140px;">Roboto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточка 3: Центр уведомлений -->
+    <div class="settings-card" id="set-card-notifications">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-notifications')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Центр уведомлений</span>
+                    <span class="settings-card-subtitle">Telegram и мессенджеры</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <!-- Подкатегория / Блок для Telegram с возможностью добавления других в будущем -->
+            <div style="background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; margin-top: 8px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: var(--primary);"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.03-1.99 1.27-5.62 3.73-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.06-.49-.83-.27-1.49-.42-1.43-.88.03-.24.37-.49 1.02-.75 3.98-1.73 6.64-2.87 7.98-3.43 3.8-1.59 4.59-1.87 5.1-1.88.11 0 .37.03.54.17.14.12.18.28.2.45z"/></svg>
+                        <span style="font-size: 13px; font-weight: 700;">Telegram Бот</span>
+                    </div>
+                    <span class="tag up" style="font-size: 9px; padding: 2px 6px;">Активно</span>
+                </div>
+                <div style="margin-top:6px;">
+                    <span class="mut" style="font-size: 11px;">Bot Token</span>
+                    <input type="text" class="text-input" id="tg-token" placeholder="123456:ABC-DEF..." style="background: var(--surface); border: 1px solid var(--border); box-shadow: none;">
+                </div>
+                <div style="margin-top:8px;">
+                    <span class="mut" style="font-size: 11px;">Chat ID</span>
+                    <input type="text" class="text-input" id="tg-chat" placeholder="-100123456789 или @channel" style="background: var(--surface); border: 1px solid var(--border); box-shadow: none;">
+                </div>
+                <button class="b" style="margin-top:10px; font-size:12px; padding:8px; width:100%; height: 38px;" onclick="testTgAlert()">Проверить Telegram</button>
+            </div>
+            
+            <!-- Задел под будущие интеграции (скрыто или оформлено плашкой добавления) -->
+            <div style="margin-top: 8px; border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 10px; text-align: center; color: var(--text-muted); font-size: 12px; cursor: pointer;" onclick="alert('Добавление других мессенджеров (Discord, Slack, Webhook) будет доступно в следующих обновлениях!')">
+                + Добавить другой канал (Discord / Webhook)
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточка 4: Система -->
+    <div class="settings-card" id="set-card-system">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-system')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Система</span>
+                    <span class="settings-card-subtitle">API и частота опроса</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <div class="opt" onclick="openStockApiModal()">
+                <span>API котировок акций</span>
+                <button class="rm-field-btn" id="stock-api-btn" style="width:180px;">Yahoo (Proxy)</button>
+            </div>
+            <div class="opt" onclick="openCryptoApiModal()">
+                <span>API криптовалют</span>
+                <button class="rm-field-btn" id="crypto-api-btn" style="width:180px;">Binance</button>
+            </div>
+            <div class="opt" onclick="openRateModal()">
+                <span>Интервал обновления</span>
+                <button class="rm-field-btn" id="rate-btn" style="width:140px;">1 сек</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточка 5: Оповещения -->
+    <div class="settings-card" id="set-card-alerts">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-alerts')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Оповещения</span>
+                    <span class="settings-card-subtitle">Звук и вибрация</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <label class="opt"><span>Звуковой сигнал при алерте</span><input type="checkbox" id="sound-chk"></label>
+            <label class="opt"><span>Вибрация при алерте</span><input type="checkbox" id="vib-chk"></label>
+        </div>
+    </div>
+
+    <!-- Карточка 6: Информация -->
+    <div class="settings-card" id="set-card-info">
+        <div class="settings-card-header" onclick="toggleSettingsCard('set-card-info')">
+            <div class="settings-card-left">
+                <div class="settings-card-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <div class="settings-card-title-group">
+                    <span class="settings-card-title">Информация</span>
+                    <span class="settings-card-subtitle">Статус и версия</span>
+                </div>
+            </div>
+            <div class="settings-card-arrow">▼</div>
+        </div>
+        <div class="settings-card-body">
+            <p class="mut" id="dn" style="margin-top: 6px;"></p>
+        </div>
+    </div>
+</section>
+
+<div class="modal" id="coin-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Выберите актив</span>
+            <button class="modal-close" onclick="closeCoinModal()">Закрыть</button>
+        </div>
+        <div class="modal-body">
+            <input type="text" class="search-input" id="search-coin" placeholder="Поиск монет..." oninput="updateCoinListUi()">
+            <div class="modal-tools" id="fav-category-tools" style="display:none;">
+                <button class="sort-btn on" id="fav-cat-all" onclick="setFavCategory('ALL')">Все</button>
+                <button class="sort-btn" id="fav-cat-spot" onclick="setFavCategory('SPOT')">Спот</button>
+                <button class="sort-btn" id="fav-cat-fut" onclick="setFavCategory('FUT')">Фьючерсы</button>
+                <button class="sort-btn" id="fav-cat-stocks" onclick="setFavCategory('STOCKS')">Акции</button>
+            </div>
+            <div class="modal-tools">
+                <button class="sort-btn on" id="sort-fav-btn" onclick="toggleSortMode('FAV')">★ Избранные</button>
+                <button class="sort-btn" id="sort-gain-btn" onclick="toggleSortMode('GAIN')">Рост 24h ↓</button>
+                <button class="sort-btn" id="sort-vol-btn" onclick="toggleSortMode('VOL')">Объем ↓</button>
+            </div>
+            <div id="coin-list-body"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="tf-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>Выберите таймфрейм</span>
+            <button class="modal-close" onclick="closeTfModal()">Закрыть</button>
+        </div>
+        <div class="modal-body">
+            <div class="custom-select-list" id="tf-grid-body"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="generic-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="generic-modal-title">Выберите параметр</span>
+            <button class="modal-close" onclick="closeGenericModal()">Закрыть</button>
+        </div>
+        <div class="modal-body">
+            <div class="custom-select-list" id="generic-modal-list"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Нижняя навигация -->
+<nav id="nv">
+    <button data-t="0">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Обзор
+    </button>
+    <button data-t="1">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Сигналы
+    </button>
+    <button data-t="2">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Сканер
+    </button>
+    <button data-t="3">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Рынок
+    </button>
+    <button data-t="4">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0l2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1 z"/></svg>
+        Настройки
+    </button>
+</nav>
+
+<script>
+    const $=s=>document.querySelector(s);
+    const TFS=['1m','5m','15m','1h','4h','1d','1w','1M'];
+    const TFMS={'1m':6e4,'5m':3e5,'15m':9e5,'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5,'1M':2592e6};
+    
+    let ALL_COINS = []; 
+    let MARKET_TYPE = 'SPOT'; 
+    let TICKER_DATA = {};
+    let SORT_MODE = 'FAV';
+    let SORT_DIR_GAIN = 'DESC';
+    let SORT_DIR_VOL = 'DESC';
+    let SUB_INDICATOR = 'RSI';
+    let FEAR_GREED_DATA = { value: 50, text: 'Нейтрально', colorClass: 'mut' };
+    
+    let DOM_HISTORY_DATA = [];
+    let DOM_TF = '1d';
+    let DOM_OFFSET_INDEX = 0;
+    let DOM_N = 30;
+
+    let SCAN_SCOPE = 'ALL';
+    let ACTIVE_TAB = 0;
+    let SIGNALS_FILTER = 'ALL';
+    let SCAN_FILTER = 'ALL';
+    let FAV_CATEGORY = 'ALL';
+
+    let scannerActiveSignalIndex = null;
+    let scannerCandles = [];
+    let scannerN = 50;
+    let scannerOff = 0;
+    let scannerTf = '1h';
+
+    let signalsActiveSignalIndex = null;
+    let signalsCandles = [];
+    let signalsN = 50;
+    let signalsOff = 0;
+    let signalsTf = '1h';
+
+    const cfg={on:{trend:1,brk:1,mean:1,smc:1,ret:1,emacross:1,pinbar:1,bos:1,bbwsq:1,liqgrab:1},cap:150,rk:1,rr:2,lev:5,em:1,fvg:1,ob:1,liq:1,sigArrows:1,sound:1,vib:1,rate:1000,sym:'BTC',tf:'1h',theme:'dark',accent:'yellow',radius:'md',font:'roboto',chartType:'candles',candleStyle:'classic',showExtremums:1,gridLines:1,thickCandles:0,chartHeight:420,chartBtnSize:36,stockApi:'yahoo',cryptoApi:'binance',tgToken:'',tgChat:'',subIndicator:'RSI'};
+    try{Object.assign(cfg,JSON.parse(localStorage.getItem('sl2')||'{}'))}catch(e){}
+    cfg.on=Object.assign({ret:1,emacross:1,pinbar:1,bos:1,bbwsq:1,liqgrab:1},cfg.on);
+    
+    SUB_INDICATOR = cfg.subIndicator || 'RSI';
+
+    try {
+        const savedState = JSON.parse(localStorage.getItem('sl2_state')||'{}');
+        if (savedState.activeTab !== undefined) ACTIVE_TAB = savedState.activeTab;
+        if (savedState.marketType) MARKET_TYPE = savedState.marketType;
+        if (savedState.scanScope) SCAN_SCOPE = savedState.scanScope;
+    } catch(e){}
+
+    scannerTf = cfg.tf;
+    signalsTf = cfg.tf;
+
+    const save=()=>{
+        cfg.tgToken = $('#tg-token').value.trim();
+        cfg.tgChat = $('#tg-chat').value.trim();
+        cfg.subIndicator = SUB_INDICATOR;
+        try{localStorage.setItem('sl2',JSON.stringify(cfg))}catch(e){}
+    };
+
+    const saveState = () => {
+        try {
+            localStorage.setItem('sl2_state', JSON.stringify({
+                activeTab: ACTIVE_TAB,
+                marketType: MARKET_TYPE,
+                scanScope: SCAN_SCOPE
+            }));
+        } catch(e){}
+    };
+    
+    let D=[],A={sigs:[],I:{},zones:[],lv:[]},sel=null,off=0,N=80,live=0,seen=new Set(),refreshTimer=null,userPanned=false;
+    let priceZoom = 1.0;
+    let priceCenterOffset = 0;
+    let isDraggingPriceScale = false;
+    let priceScaleDragStartY = 0;
+    let priceZoomAtStart = 1.0;
+    let lastTagClickCoords = null;
+
+    const fmt=p=>p>=1000?p.toFixed(2):p>=1?p.toFixed(2):p.toFixed(4);
+
+    function showApiAlert(show) {
+        const banner = $('#api-alert-banner');
+        if (banner) banner.classList.toggle('on', show);
+    }
+
+    const getFaves = () => JSON.parse(localStorage.getItem('sl2_favs')||'[]');
+    const isFav = s => getFaves().includes(s);
+    function toggleFav(s){
+        let f=getFaves();
+        const i=f.indexOf(s);
+        if(i>=0){f.splice(i,1)}else{f.push(s)}
+        localStorage.setItem('sl2_favs',JSON.stringify(f));
+        render();
+        updateCoinListUi();
+    }
+
+    function toggleSettingsCard(cardId) {
+        const card = document.getElementById(cardId);
+        if (card) {
+            card.classList.toggle('open');
+        }
+    }
+
+    function playBeepSound() {
+        if (!cfg.sound) return;
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } catch(e){}
+    }
+
+    function triggerVibration() {
+        if (!cfg.vib) return;
+        try {
+            navigator.vibrate && navigator.vibrate([200, 100, 200]);
+        } catch(e){}
+    }
+
+    function sendTelegramAlert(text) {
+        if (!cfg.tgToken || !cfg.tgChat) return;
+        fetch(`https://api.telegram.org/bot${cfg.tgToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: cfg.tgChat, text: text, parse_mode: 'Markdown' })
+        }).catch(err => console.error('Telegram error:', err));
+    }
+
+    function testTgAlert() {
+        save();
+        if (!cfg.tgToken || !cfg.tgChat) {
+            alert('Сначала заполни Bot Token и Chat ID в настройках!');
+            return;
+        }
+        sendTelegramAlert('⚡ *Signals Lab Pro*: Тестовое уведомление успешно доставлено!');
+        alert('Тестовый запрос отправлен в Telegram!');
+    }
+
+    const spotCoinsList = ['BTC','ETH','SOL','BNB','XRP','DOGE','ADA','AVAX','DOT','LINK','MATIC','UNI','TRX','LTC','BCH'];
+    const futuresCoinsList = ['BTC','ETH','SOL','XRP','TON','SUI','PEPE','WIF','WLD','NEAR','OP','ARB','APT','FLOKI','FET'];
+    const stocksCoinsList = ['AAPL', 'TSLA', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'NFLX', 'AMD', 'INTC'];
+
+    function applyVisualStyles() {
+        save();
+        const theme = cfg.theme || 'dark';
+        const isLight = theme === 'light' || (theme === 'auto' && (new Date().getHours() >= 7 && new Date().getHours() < 20));
+        document.body.classList.toggle('light-theme', isLight);
+        $('#theme-btn').textContent = theme === 'dark' ? 'Тёмная' : theme === 'light' ? 'Светлая' : 'Авто';
+
+        const accent = cfg.accent || 'yellow';
+        document.body.classList.remove('theme-cyan', 'theme-pink', 'theme-emerald', 'theme-orange', 'theme-purple', 'theme-blue');
+        if (accent !== 'yellow') document.body.classList.add(`theme-${accent}`);
+        const accentMap = { yellow: 'Жёлтый', cyan: 'Неоновый Cyan', pink: 'Киберпанк Pink', emerald: 'Премиум Emerald', orange: 'Оранжевый', purple: 'Фиолетовый', blue: 'Синий' };
+        $('#accent-btn').textContent = accentMap[accent] || 'Жёлтый';
+
+        const radius = cfg.radius || 'md';
+        const radiusMap = { sm: '6px', md: '10px', lg: '16px', full: '24px' };
+        const radiusLblMap = { sm: 'Маленькое', md: 'Среднее', lg: 'Большое', full: 'Максимальное' };
+        document.documentElement.style.setProperty('--radius-md', radiusMap[radius] || '10px');
+        document.documentElement.style.setProperty('--radius-lg', radius === 'sm' ? '10px' : radius === 'full' ? '28px' : '18px');
+        $('#radius-btn').textContent = radiusLblMap[radius] || 'Среднее';
+
+        const font = cfg.font || 'roboto';
+        const fontMap = { roboto: "'Roboto', sans-serif", montserrat: "'Montserrat', sans-serif", mono: "'JetBrains Mono', monospace" };
+        const fontLblMap = { roboto: 'Roboto', montserrat: 'Montserrat', mono: 'Monospace' };
+        document.documentElement.style.setProperty('--font-family', fontMap[font] || "'Roboto', sans-serif");
+        $('#font-btn').textContent = fontLblMap[font] || 'Roboto';
+
+        const chartTypeMap = { candles: 'Свечи (Candles)', line: 'Линейный (Line)' };
+        $('#chart-type-btn').textContent = chartTypeMap[cfg.chartType] || 'Свечи (Candles)';
+
+        const candleMap = { classic: 'Классика', neon: 'Неон (Яркие)', monochrome: 'Монохром' };
+        $('#chart-candle-style-btn').textContent = candleMap[cfg.candleStyle] || 'Классика';
+
+        const apiMap = { yahoo: 'Yahoo Finance (Proxy)', twelvedata: 'Twelve Data', marketstack: 'Marketstack' };
+        $('#stock-api-btn').textContent = apiMap[cfg.stockApi] || 'Yahoo Finance (Proxy)';
+
+        const cryptoApiMap = { binance: 'Binance', bybit: 'Bybit', okx: 'OKX', kucoin: 'KuCoin' };
+        $('#crypto-api-btn').textContent = cryptoApiMap[cfg.cryptoApi] || 'Binance';
+
+        const h = cfg.chartHeight || 420;
+        document.documentElement.style.setProperty('--chart-height', h + 'px');
+        const slider = $('#chart-height-slider');
+        const hValLbl = $('#chart-height-val');
+        if (slider) slider.value = h;
+        if (hValLbl) hValLbl.textContent = h + 'px';
+
+        const btnSz = cfg.chartBtnSize || 36;
+        document.documentElement.style.setProperty('--chart-btn-size', btnSz + 'px');
+        document.documentElement.style.setProperty('--chart-btn-icon', Math.round(btnSz * 0.44) + 'px');
+        const btnSlider = $('#chart-btn-size-slider');
+        const btnValLbl = $('#chart-btn-size-val');
+        if (btnSlider) btnSlider.value = btnSz;
+        if (btnValLbl) btnValLbl.textContent = btnSz + 'px';
+
+        if (D.length) draw();
+        if (scannerActiveSignalIndex !== null) drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);
+        if (signalsActiveSignalIndex !== null) drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);
+        drawGauge();
+        drawDomHistory();
+        updateMarketOverview();
+    }
+
+    function updateChartHeightLive(val) {
+        cfg.chartHeight = parseInt(val);
+        document.documentElement.style.setProperty('--chart-height', val + 'px');
+        const hValLbl = $('#chart-height-val');
+        if (hValLbl) hValLbl.textContent = val + 'px';
+        if (D.length) draw();
+    }
+
+    function saveChartHeight(val) {
+        cfg.chartHeight = parseInt(val);
+        save();
+        applyVisualStyles();
+    }
+
+    function updateChartBtnSizeLive(val) {
+        cfg.chartBtnSize = parseInt(val);
+        document.documentElement.style.setProperty('--chart-btn-size', val + 'px');
+        document.documentElement.style.setProperty('--chart-btn-icon', Math.round(val * 0.44) + 'px');
+        const btnValLbl = $('#chart-btn-size-val');
+        if (btnValLbl) btnValLbl.textContent = val + 'px';
+    }
+
+    function saveChartBtnSize(val) {
+        cfg.chartBtnSize = parseInt(val);
+        save();
+        applyVisualStyles();
+    }
+
+    function isStockMarketClosed() {
+        const now = new Date();
+        const day = now.getDay();
+        return (day === 0 || day === 6);
+    }
+
+    async function fetchFearAndGreed() {
+        try {
+            const res = await fetch('https://api.alternative.me/fng/');
+            const json = await res.json();
+            if (json.data && json.data[0]) {
+                const val = parseInt(json.data[0].value);
+                let txt = 'Нейтрально', colorClass = 'mut';
+                if (val <= 25) { txt = 'Крайний Страх'; colorClass = 'dn'; }
+                else if (val <= 45) { txt = 'Страх'; colorClass = 'dn'; }
+                else if (val >= 75) { txt = 'Крайняя Жадность'; colorClass = 'up'; }
+                else if (val >= 55) { txt = 'Жадность'; colorClass = 'up'; }
+                FEAR_GREED_DATA = { value: val, text: txt, colorClass };
+                drawGauge();
+            }
+        } catch(e) {}
+    }
+
+    function drawGauge() {
+        const cv = $('#gauge-cv');
+        if (!cv) return;
+        const ctx = cv.getContext('2d'), W = cv.clientWidth || 320, H = cv.height;
+        cv.width = W; cv.height = H; ctx.clearRect(0,0,W,H);
+        const padX = 20, barW = W - padX * 2, barH = 14, barY = 16;
+        const grad = ctx.createLinearGradient(padX, 0, padX + barW, 0);
+        grad.addColorStop(0, '#f6465d'); grad.addColorStop(0.25, '#ff9800'); grad.addColorStop(0.5, '#848e9c'); grad.addColorStop(0.75, '#26a69a'); grad.addColorStop(1, '#0ecb81');
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.roundRect(padX, barY, barW, barH, 7); ctx.fill();
+        ctx.font = '9px Roboto'; ctx.fillStyle = document.body.classList.contains('light-theme') ? '#667085' : '#848e9c'; ctx.textAlign = 'center';
+        [0, 25, 50, 75, 100].forEach(v => {
+            const x = padX + (v / 100) * barW;
+            ctx.fillRect(x, barY + barH, 1, 3); ctx.fillText(v, x, barY + barH + 12);
+        });
+        const val = FEAR_GREED_DATA.value, curX = padX + (val / 100) * barW;
+        ctx.fillStyle = document.body.classList.contains('light-theme') ? '#181a20' : '#eaecef';
+        ctx.beginPath(); ctx.moveTo(curX, barY - 2); ctx.lineTo(curX - 5, barY - 8); ctx.lineTo(curX + 5, barY - 8); ctx.closePath(); ctx.fill();
+        $('#mkt-fg-val').textContent = val; $('#mkt-fg-lbl').textContent = FEAR_GREED_DATA.text;
+        $('#mkt-fg-lbl').className = 'gauge-lbl ' + FEAR_GREED_DATA.colorClass;
+    }
+
+    function setDomTf(tf) {
+        DOM_TF = tf;
+        DOM_OFFSET_INDEX = 0;
+        document.querySelectorAll('.dom-tf-btn').forEach(b => {
+            const txt = b.textContent.toLowerCase();
+            b.classList.toggle('on', txt === tf.toLowerCase() || (tf === '1M' && txt === '1m'));
+        });
+        fetchDomHistory();
+    }
+
+    async function fetchDomHistory() {
+        try {
+            let currentBtcDom = 58.0;
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/global');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json?.data?.market_cap_percentage?.btc) {
+                        currentBtcDom = parseFloat(json.data.market_cap_percentage.btc.toFixed(1));
+                        const btcBar = $('#dom-btc-bar'), altBar = $('#dom-alt-bar'), btcTxt = $('#dom-btc-txt'), altTxt = $('#dom-alt-txt');
+                        if (btcBar && altBar && btcTxt && altTxt) {
+                            const altDom = (100 - currentBtcDom).toFixed(1);
+                            btcBar.style.width = `${currentBtcDom}%`; altBar.style.width = `${altDom}%`;
+                            btcTxt.textContent = `BTC: ${currentBtcDom.toFixed(1)}%`; altTxt.textContent = `ALTS: ${altDom}%`;
+                        }
+                    }
+                }
+            } catch (apiErr) {}
+
+            const tfStepMap = { '1h': 36e5, '4h': 144e5, '1d': 864e5, '1w': 6048e5, '1M': 2592e6 };
+            const stepMs = tfStepMap[DOM_TF] || 864e5;
+            const totalPoints = 100;
+            const nowTime = Date.now();
+            let pts = [];
+
+            for (let i = totalPoints - 1; i >= 0; i--) {
+                const t = nowTime - i * stepMs;
+                const wave = Math.sin(i * 0.15) * 1.8 + Math.cos(i * 0.05) * 0.9;
+                const pVal = parseFloat((currentBtcDom + wave).toFixed(1));
+                pts.push({ t, p: pVal });
+            }
+            DOM_HISTORY_DATA = pts;
+        } catch(e) {
+            DOM_HISTORY_DATA = [{t: Date.now(), p: 58.0}];
+        }
+        drawDomHistory();
+    }
+
+    function drawDomHistory() {
+        const cv = $('#dom-chart-cv');
+        if (!cv) return;
+        const ctx = cv.getContext('2d'), W = cv.clientWidth || 320, H = cv.height || 170;
+        cv.width = W; cv.height = H; ctx.clearRect(0, 0, W, H);
+        
+        const pts = DOM_HISTORY_DATA;
+        if (!pts.length) return;
+
+        const padLeft = 10, padRight = 42, padTop = 8, padBottom = 22;
+        const graphW = W - padLeft - padRight, graphH = H - padTop - padBottom;
+
+        DOM_OFFSET_INDEX = Math.max(0, Math.min(pts.length - DOM_N, DOM_OFFSET_INDEX));
+        const endIdx = pts.length - DOM_OFFSET_INDEX;
+        const startIdx = Math.max(0, endIdx - DOM_N);
+        const V = pts.slice(startIdx, endIdx);
+
+        if (!V.length) return;
+
+        const stepX = graphW / (V.length - 1 || 1);
+        let hi = Math.max(...V.map(x => x.p)), lo = Math.min(...V.map(x => x.p));
+        if (hi === lo) { hi += 1; lo -= 1; }
+        const span = hi - lo;
+        hi += span * 0.15; lo -= span * 0.15;
+
+        const y = p => padTop + (hi - p) / (hi - lo) * graphH;
+        const x = i => padLeft + i * stepX;
+
+        const isLight = document.body.classList.contains('light-theme');
+        const gridClr = isLight ? '#e0e0e0' : '#2b2f36', txtClr = isLight ? '#667085' : '#848e9c';
+
+        ctx.font = '9px Roboto'; ctx.strokeStyle = gridClr; ctx.fillStyle = txtClr; ctx.lineWidth = 1;
+        [0, 0.5, 1].forEach(ratio => {
+            const val = lo + (hi - lo) * (1 - ratio);
+            const yy = padTop + graphH * ratio;
+            ctx.beginPath(); ctx.moveTo(padLeft, yy); ctx.lineTo(W - padRight, yy); ctx.stroke();
+            ctx.textAlign = 'left'; ctx.fillText(val.toFixed(1) + '%', W - padRight + 4, yy + 3);
+        });
+
+        ctx.strokeStyle = '#f7931a'; ctx.lineWidth = 2; ctx.beginPath();
+        V.forEach((pt, i) => {
+            const px = x(i), py = y(pt.p);
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+
+        ctx.strokeStyle = gridClr; ctx.beginPath(); ctx.moveTo(padLeft, padTop + graphH); ctx.lineTo(W - padRight, padTop + graphH); ctx.stroke();
+        ctx.textAlign = 'center'; ctx.fillStyle = txtClr;
+        const timeStep = Math.max(1, Math.floor(V.length / 4));
+        V.forEach((pt, i) => {
+            if (i % timeStep === 0) {
+                const dt = new Date(pt.t);
+                let tStr = '';
+                if (DOM_TF === '1h' || DOM_TF === '4h') {
+                    tStr = dt.getHours().toString().padStart(2, '0') + ':' + dt.getMinutes().toString().padStart(2, '0');
+                } else if (DOM_TF === '1d') {
+                    tStr = `${dt.getDate().toString().padStart(2, '0')}.${(dt.getMonth() + 1).toString().padStart(2, '0')}`;
+                } else {
+                    tStr = `${dt.getDate()}.${dt.getMonth() + 1}`;
+                }
+                ctx.fillText(tStr, x(i), padTop + graphH + 14);
+            }
+        });
+    }
+
+    let domDragging = false, domStartX = 0, domStartOffset = 0;
+    document.addEventListener('DOMContentLoaded', () => {
+        const domCv = $('#dom-chart-cv');
+        if (domCv) {
+            domCv.onpointerdown = e => {
+                domDragging = true;
+                domStartX = e.clientX;
+                domStartOffset = DOM_OFFSET_INDEX;
+                domCv.setPointerCapture(e.pointerId);
+            };
+            domCv.onpointermove = e => {
+                if (!domDragging) return;
+                const dx = e.clientX - domStartX;
+                const stepW = (domCv.clientWidth - 52) / DOM_N;
+                const shift = Math.round(dx / stepW);
+                DOM_OFFSET_INDEX = Math.max(0, Math.min(DOM_HISTORY_DATA.length - DOM_N, domStartOffset + shift));
+                drawDomHistory();
+            };
+            domCv.onpointerup = domCv.onpointercancel = e => {
+                domDragging = false;
+            };
+            domCv.addEventListener('wheel', e => {
+                e.preventDefault();
+                DOM_N = Math.min(80, Math.max(10, DOM_N + (e.deltaY > 0 ? 3 : -3)));
+                drawDomHistory();
+            }, { passive: false });
+        }
+        fetchDomHistory();
+    });
+
+    function fmtVol(v) {
+        if (!v) return '—';
+        if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
+        if (v >= 1e6) return (v / 1e6).toFixed(1) + 'M';
+        if (v >= 1e3) return (v / 1e3).toFixed(1) + 'K';
+        return v.toFixed(0);
+    }
+
+    async function updateMarketOverview() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/global');
+            if (res.ok) {
+                const json = await res.json();
+                if (json?.data) {
+                    const cap = json.data.total_market_cap?.usd || 2.48e12;
+                    const vol = json.data.total_volume?.usd || 78.4e9;
+                    $('#mkt-total-cap').textContent = '$' + (cap / 1e12).toFixed(2) + 'T';
+                    $('#mkt-total-vol').textContent = '$' + (vol / 1e9).toFixed(1) + 'B';
+                }
+            }
+        } catch(e) {}
+
+        const activeApiName = (cfg.cryptoApi || 'binance').toUpperCase();
+        const titleEl = $('#heatmap-title-label');
+        if (titleEl) {
+            titleEl.textContent = `Тепловая карта топ-монет — ${activeApiName}`;
+        }
+
+        const coinsMap = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'ADA', 'DOGE', 'AVAX', 'DOT', 'LINK', 'NEAR', 'SUI'];
+        let html = '';
+        
+        coinsMap.forEach(sym => {
+            const d = TICKER_DATA[sym] || { c: 0, v: 0 };
+            const chg = d.c != null ? d.c : 0;
+            const volStr = fmtVol(d.v || 0);
+            const isUp = chg >= 0;
+            
+            html += `
+                <div style="background: ${isUp ? 'rgba(14, 203, 129, 0.12)' : 'rgba(246, 70, 93, 0.12)'}; border: 1px solid ${isUp ? 'var(--up)' : 'var(--dn)'}; border-radius: 8px; padding: 6px 4px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 50px;">
+                    <strong style="font-size: 11px; line-height: 1; color: var(--text-main);">${sym}</strong>
+                    <span class="${isUp ? 'up' : 'dn'}" style="font-size: 10px; font-weight: 700; line-height: 1;">${isUp ? '+' : ''}${chg.toFixed(1)}%</span>
+                    <span style="font-size: 8px; color: var(--text-muted); font-weight: 500; line-height: 1;">Vol: ${volStr}</span>
+                </div>
+            `;
+        });
+        
+        const grid = $('#heatmap-grid');
+        if (grid) grid.innerHTML = html;
+    }
+
+    async function fetchCryptoData(){
+        const order = [cfg.cryptoApi || 'binance', 'binance', 'bybit', 'okx', 'kucoin'];
+        const uniqueOrder = [...new Set(order)];
+
+        for (const ex of uniqueOrder) {
+            try {
+                if (ex === 'binance') {
+                    const s = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                    if (s.ok) {
+                        const j = await s.json();
+                        const data = {};
+                        j.forEach(t => {
+                            if (t.symbol.endsWith('USDT')) {
+                                const sym = t.symbol.replace('USDT','');
+                                data[sym] = {p: +t.lastPrice, v: +t.quoteVolume, c: +t.priceChangePercent};
+                            }
+                        });
+                        showApiAlert(false);
+                        return data;
+                    }
+                } else if (ex === 'bybit') {
+                    const [resSpot, resLin] = await Promise.all([
+                        fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://api.bybit.com/v5/market/tickers?category=spot`)).then(r => r.json()).catch(() => null),
+                        fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://api.bybit.com/v5/market/tickers?category=linear`)).then(r => r.json()).catch(() => null)
+                    ]);
+
+                    const data = {};
+                    if (resSpot?.result?.list) {
+                        resSpot.result.list.forEach(t => {
+                            if (t.symbol.endsWith('USDT')) {
+                                const sym = t.symbol.replace('USDT','');
+                                data[sym] = {p: +t.lastPrice, v: +t.turnover24h || 0, c: +(t.price24hPcnt * 100) || 0};
+                            }
+                        });
+                    }
+                    if (resLin?.result?.list) {
+                        resLin.result.list.forEach(t => {
+                            if (t.symbol.endsWith('USDT')) {
+                                const sym = t.symbol.replace('USDT','');
+                                const spotVol = data[sym]?.v || 0;
+                                const linVol = +t.turnover24h || 0;
+                                const price = +t.lastPrice || data[sym]?.p || 0;
+                                const chg = +(t.price24hPcnt * 100) || data[sym]?.c || 0;
+                                data[sym] = { p: price, v: spotVol + linVol, c: chg };
+                            }
+                        });
+                    }
+
+                    if (Object.keys(data).length > 0) {
+                        showApiAlert(false);
+                        return data;
+                    }
+                } else if (ex === 'okx') {
+                    const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://www.okx.com/api/v5/market/tickers?instType=SPOT`));
+                    const json = await res.json();
+                    if (json?.data) {
+                        const data = {};
+                        json.data.forEach(t => {
+                            if (t.instId.endsWith('-USDT')) {
+                                const sym = t.instId.replace('-USDT','');
+                                data[sym] = {p: +t.last, v: +t.volCcy24h || +t.vol24h || 10000, c: 0};
+                            }
+                        });
+                        showApiAlert(false);
+                        return data;
+                    }
+                } else if (ex === 'kucoin') {
+                    const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://api.kucoin.com/api/v1/market/allTickers`));
+                    const json = await res.json();
+                    if (json?.data?.ticker) {
+                        const data = {};
+                        json.data.ticker.forEach(t => {
+                            if (t.symbol.endsWith('-USDT')) {
+                                const sym = t.symbol.replace('-USDT','');
+                                data[sym] = {p: +t.last, v: +t.volValue || 10000, c: +(t.changeRate * 100) || 0};
+                            }
+                        });
+                        showApiAlert(false);
+                        return data;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        showApiAlert(true);
+        return {};
+    }
+
+    async function fetchStockData() {
+        if (MARKET_TYPE === 'STOCKS' && isStockMarketClosed()) {
+            showApiAlert(false);
+            return {};
+        }
+
+        const symbols = ['AAPL', 'TSLA', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'META', 'NFLX', 'AMD', 'INTC'];
+        const data = {};
+
+        try {
+            if (cfg.stockApi === 'twelvedata') {
+                const targetUrl = `https://api.twelvedata.com/price?symbol=${symbols.join(',')}&apikey=demo`;
+                const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(targetUrl));
+                const json = await res.json();
+                if (json && !json.code) {
+                    symbols.forEach(sym => {
+                        if (json[sym]?.price) {
+                            data[sym] = { p: +json[sym].price, v: 2000000, c: 0.5 };
+                        }
+                    });
+                }
+                if (Object.keys(data).length > 0) {
+                    showApiAlert(false);
+                    return data;
+                }
+            } else if (cfg.stockApi === 'marketstack') {
+                const targetUrl = `https://api.marketstack.com/v1/eod/latest?access_key=demo&symbols=${symbols.join(',')}`;
+                const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(targetUrl));
+                const json = await res.json();
+                if (json?.data) {
+                    json.data.forEach(q => {
+                        data[q.symbol] = { p: q.close || 100, v: q.volume || 1e6, c: 0.2 };
+                    });
+                }
+                if (Object.keys(data).length > 0) {
+                    showApiAlert(false);
+                    return data;
+                }
+            }
+
+            const targetUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols.join(',')}`;
+            const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(targetUrl));
+            const json = await res.json();
+            if (json?.quoteResponse?.result) {
+                json.quoteResponse.result.forEach(q => {
+                    data[q.symbol] = {
+                        p: q.regularMarketPrice || 100,
+                        v: q.regularMarketVolume || 1e6,
+                        c: q.regularMarketChangePercent || 0
+                    };
+                });
+                showApiAlert(false);
+            } else {
+                throw new Error('No data');
+            }
+        } catch(e) {
+            showApiAlert(true);
+        }
+        return data;
+    }
+
+    async function load(sym, tf) {
+        if (stocksCoinsList.includes(sym)) {
+            if (isStockMarketClosed()) {
+                showApiAlert(false);
+                return { live: 0, D: [] };
+            }
+            try {
+                let targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1h&range=1mo`;
+                if (cfg.stockApi === 'twelvedata') {
+                    targetUrl = `https://api.twelvedata.com/time_series?symbol=${sym}&interval=1h&outputsize=100&apikey=demo`;
+                }
+                const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(targetUrl));
+                const json = await res.json();
+                
+                if (cfg.stockApi === 'twelvedata' && json?.values) {
+                    let D_arr = json.values.reverse().map(item => ({
+                        t: new Date(item.datetime).getTime(),
+                        o: +item.open,
+                        h: +item.high,
+                        l: +item.low,
+                        c: +item.close,
+                        v: +item.volume || 1000
+                    }));
+                    if (D_arr.length > 10) {
+                        showApiAlert(false);
+                        return { live: 1, D: D_arr };
+                    }
+                }
+
+                const result = json?.chart?.result?.[0];
+                if (result) {
+                    const timestamps = result.timestamp;
+                    const quotes = result.indicators.quote[0];
+                    let D_arr = [];
+                    for (let i = 0; i < timestamps.length; i++) {
+                        if (quotes.open[i] != null && quotes.high[i] != null && quotes.low[i] != null && quotes.close[i] != null) {
+                            D_arr.push({
+                                t: timestamps[i] * 1000,
+                                o: quotes.open[i],
+                                h: quotes.high[i],
+                                l: quotes.low[i],
+                                c: quotes.close[i],
+                                v: quotes.volume[i] || 1000
+                            });
+                        }
+                    }
+                    if (D_arr.length > 10) {
+                        showApiAlert(false);
+                        return { live: 1, D: D_arr };
+                    }
+                }
+            } catch(e) {
+                showApiAlert(true);
+            }
+            return { live: 0, D: [] };
+        }
+
+        const order = [cfg.cryptoApi || 'binance', 'binance', 'bybit', 'okx', 'kucoin'];
+        const uniqueOrder = [...new Set(order)];
+
+        for (const ex of uniqueOrder) {
+            try {
+                if (ex === 'binance') {
+                    for(const h of['https://api.binance.com','https://data-api.binance.vision']){
+                        const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),3000);
+                        const r=await fetch(`${h}/api/v3/klines?symbol=${sym}USDT&interval=${tf}&limit=500`,{signal:ac.signal});
+                        clearTimeout(tm);
+                        if(r.ok){
+                            const j=await r.json();
+                            if(j && j.length) {
+                                showApiAlert(false);
+                                return {live:1, D:j.map(k=>({t:k[0],o:+k[1],h:+k[2],l:+k[3],c:+k[4],v:+k[5]}))};
+                            }
+                        }
+                    }
+                } else if (ex === 'bybit') {
+                    const tfMap = {'1m':'1','5m':'5','15m':'15','1h':'60','4h':'240','1d':'D','1w':'W','1M':'M'};
+                    const bTf = tfMap[tf] || '60';
+                    const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://api.bybit.com/v5/market/kline?category=spot&symbol=${sym}USDT&interval=${bTf}&limit=500`));
+                    const json = await res.json();
+                    if(json?.result?.list && json.result.list.length > 0) {
+                        let D_arr = json.result.list.reverse().map(k => ({t: +k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5]}));
+                        showApiAlert(false);
+                        return {live: 1, D: D_arr};
+                    }
+                } else if (ex === 'okx') {
+                    const tfMap = {'1m':'1m','5m':'5m','15m':'15m','1h':'1H','4h':'4H','1d':'1D','1w':'1W','1M':'1M'};
+                    const oTf = tfMap[tf] || '1H';
+                    const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://www.okx.com/api/v5/market/candles?instId=${sym}-USDT&bar=${oTf}&limit=300`));
+                    const json = await res.json();
+                    if(json?.data && json.data.length > 0) {
+                        let D_arr = json.data.reverse().map(k => ({t: +k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5]}));
+                        showApiAlert(false);
+                        return {live: 1, D: D_arr};
+                    }
+                } else if (ex === 'kucoin') {
+                    const tfMap = {'1m':'1min','5m':'5min','15m':'15min','1h':'1hour','4h':'4hour','1d':'1day','1w':'1week'};
+                    const kTf = tfMap[tf] || '1hour';
+                    const res = await fetch(`https://corsproxy.io/?` + encodeURIComponent(`https://api.kucoin.com/api/v1/market/candles?symbol=${sym}-USDT&type=${kTf}`));
+                    const json = await res.json();
+                    if(json?.data && json.data.length > 0) {
+                        let D_arr = json.data.reverse().map(k => ({t: +k[0] * 1000, o: +k[1], h: +k[3], l: +k[4], c: +k[2], v: +k[5]}));
+                        showApiAlert(false);
+                        return {live: 1, D: D_arr};
+                    }
+                }
+            } catch(e) {}
+        }
+
+        showApiAlert(true);
+        return {live: 0, D: []};
+    }
+
+    const ema=(a,n)=>{const k=2/(n+1);let e=a[0];return a.map((x,i)=>i?e=x*k+e*(1-k):e)};
+    const sma=(a,n)=>a.map((_,i)=>i<n-1?NaN:a.slice(i-n+1,i+1).reduce((s,x)=>s+x,0)/n);
+    const stdv=(a,n)=>a.map((_,i)=>{if(i<n-1)return NaN;const w=a.slice(i-n+1,i+1),m=w.reduce((s,x)=>s+x,0)/n;return Math.sqrt(w.reduce((s,x)=>s+(x-m)**2,0)/n)});
+    function rsi(c,n=14){const o=[NaN];let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1],u=Math.max(d,0),w=Math.max(-d,0);if(i<=n){g+=u/n;l+=w/n}else{g=(g*(n-1)+u)/n;l=(l*(n-1)+w)/n}o.push(i<n?NaN:l==0?100:100-100/(1+g/l))}return o}
+    const atr=D=>ema(D.map((x,i)=>i?Math.max(x.h-x.l,Math.abs(x.h-D[i-1].c),Math.abs(x.l-D[i-1].c)):x.h-x.l),14);
+
+    function macd(c) {
+        const e12 = ema(c, 12), e26 = ema(c, 26);
+        const line = e12.map((v, i) => v - e26[i]);
+        const signal = ema(line, 9);
+        const hist = line.map((v, i) => v - signal[i]);
+        return { line, signal, hist };
+    }
+
+    function stoch(D, n = 14) {
+        return D.map((_, i) => {
+            if (i < n - 1) return NaN;
+            const w = D.slice(i - n + 1, i + 1);
+            const hh = Math.max(...w.map(x => x.h)), ll = Math.min(...w.map(x => x.l));
+            return hh === ll ? 50 : ((D[i].c - ll) / (hh - ll)) * 100;
+        });
+    }
+
+    function bbw(c, n = 20) {
+        const m = sma(c, n), s = stdv(c, n);
+        return m.map((v, i) => isNaN(v) || isNaN(s[i]) || v === 0 ? NaN : ((4 * s[i]) / v) * 100);
+    }
+
+    function cci(D, n = 20) {
+        return D.map((_, i) => {
+            if (i < n - 1) return NaN;
+            const w = D.slice(i - n + 1, i + 1);
+            const tp = w.map(x => (x.h + x.l + x.c) / 3);
+            const smTp = tp.reduce((a, b) => a + b, 0) / n;
+            const md = tp.reduce((a, b) => a + Math.abs(b - smTp), 0) / n;
+            return md === 0 ? 0 : (tp[tp.length - 1] - smTp) / (0.015 * md);
+        });
+    }
+
+    function mfi(D, n = 14) {
+        const o = [NaN];
+        for (let i = 1; i < D.length; i++) {
+            if (i < n) { o.push(NaN); continue; }
+            let pos = 0, neg = 0;
+            for (let j = i - n + 1; j <= i; j++) {
+                const curTp = (D[j].h + D[j].l + D[j].c) / 3;
+                const prevTp = (D[j - 1].h + D[j - 1].l + D[j - 1].c) / 3;
+                const mf = curTp * D[j].v;
+                if (curTp > prevTp) pos += mf; else neg += mf;
+            }
+            if (neg === 0) o.push(100);
+            else { const ratio = pos / neg; o.push(100 - (100 / (1 + ratio))); }
+        }
+        return o;
+    }
+
+    function obv(D) {
+        const o = [0];
+        for (let i = 1; i < D.length; i++) {
+            let prev = o[i - 1];
+            if (D[i].c > D[i - 1].c) prev += D[i].v;
+            else if (D[i].c < D[i - 1].c) prev -= D[i].v;
+            o.push(prev);
+        }
+        return o;
+    }
+
+    function roc(c, n = 10) {
+        return c.map((v, i) => i < n ? NaN : ((v - c[i - n]) / c[i - n]) * 100);
+    }
+
+    function mk(dir,entry,sl,rr,note,tp){const r=Math.abs(entry-sl);if(!r)return;if(tp===undefined||(tp-entry)*dir<=0)tp=entry+dir*r*rr;return{dir,entry,sl,tp,note}}
+
+    const S={
+        trend:{n:'Тренд: откат к EMA', short:'Отскок от EMA20', d:'Покупка отскока от EMA20 в восходящем тренде.',f:(i,I,D,rr)=>{if(i<60)return;const c=D[i].c,e=I.e20[i],f=I.e50[i],a=I.a[i];
+            if(e>f&&D[i].l<=e&&c>e&&I.r[i]>45)return mk(1,c,c-1.5*a,rr,'EMA20 выше EMA50, откат и отскок');
+            if(e<f&&D[i].h>=e&&c<e&&I.r[i]<55)return mk(-1,c,c+1.5*a,rr,'EMA20 ниже EMA50, откат и отбой')}},
+        
+        brk:{n:'Пробой Дончиана 20', short:'Пробой экстремума 20 св.', d:'Вход на закрытии за экстремумом 20 свечей.',f:(i,I,D,rr)=>{if(i<25)return;const w=D.slice(i-20,i),hh=Math.max(...w.map(x=>x.h)),ll=Math.min(...w.map(x=>x.l)),c=D[i].c,a=I.a[i];
+            if(c>hh&&D[i-1].c<=hh)return mk(1,c,c-1.5*a,rr,'Закрытие выше максимума 20 свечей');
+            if(c<ll&&D[i-1].c>=ll)return mk(-1,c,c+1.5*a,rr,'Закрытие ниже минимума 20 свечей')}},
+        
+        mean:{n:'Возврат: Bollinger+RSI', short:'Возврат в Боллинджер', d:'Контртренд: возврат в полосы Боллинджера.',f:(i,I,D,rr)=>{if(i<25)return;const m=I.sm[i],s=I.sd[i],c=D[i].c,pc=D[i-1].c,pm=I.sm[i-1],ps=I.sd[i-1],a=I.a[i];
+            if(pc<pm-2*ps&&c>m-2*s&&I.r[i]<40)return mk(1,c,Math.min(D[i].l,D[i-1].l)-.2*a,rr,'Возврат внутрь нижней полосы Боллинджера',m);
+            if(pc>pm+2*ps&&c<m+2*s&&I.r[i]>60)return mk(-1,c,Math.max(D[i].h,D[i-1].h)+.2*a,rr,'Возврат внутрь верхней полосы Боллинджера',m)}},
+        
+        ret:{n:'Ретест OB/FVG', short:'Ретест зоны / FVG', d:'Первый ретест свежего блока или дисбаланса.',f:(i,I,D,rr,Z)=>{if(i<40)return;const x=D[i],a=I.a[i];
+            for(let q=Z.length-1;q>=0;q--){const z=Z[q];if(z.c>=i||i-z.c>40||(z.e!=null&&z.e<=i))continue;
+                let fr=true;for(let j=z.c+1;j<i;j++)if(z.dir>0?D[j].l<=z.hi:D[j].h>=z.lo){fr=false;break}if(!fr)continue;const mid=(z.lo+z.hi)/2,w=D.slice(i-30,i);
+                if(z.dir>0&&x.l<=z.hi&&x.c>mid&&x.c>x.o){const tg=Math.max(...w.map(v=>v.h));return mk(1,x.c,z.lo-.2*a,rr,'Первый ретест бычьего '+z.t,(tg-x.c)/(x.c-z.lo+.2*a)>=1.5?tg:undefined)}
+                if(z.dir<0&&x.h>=z.lo&&x.c<mid&&x.c<x.o){const tg=Math.min(...w.map(v=>v.l));return mk(-1,x.c,z.hi+.2*a,rr,'Первый ретест медвежьего '+z.t,(x.c-tg)/(z.hi+.2*a-x.c)>=1.5?tg:undefined)}}}},
+        
+        smc:{n:'SMC: sweep + MSS', short:'Снятие ликвидности', d:'Снятие ликвидности и слом структуры.',f:(i,I,D,rr)=>{if(i<30)return;let sh=null,sl=null;
+            for(let j=i-4;j>i-40&&j>3;j--){const x=D[j],ks=[1,2,3];
+                if(!sl&&x.l<Math.min(...ks.flatMap(k=>[D[j-k].l,D[j+k].l])))sl={j,p:x.l};
+                if(!sh&&x.h>Math.max(...ks.flatMap(k=>[D[j-k].h,D[j+k].h])))sh={j,p:x.h};if(sh&&sl)break}
+            const a=I.a[i],c=D[i].c;
+            if(sl)for(let s=i-1;s>=i-6&&s>sl.j;s--)if(D[s].l<sl.p&&D[s].c>sl.p){const m=Math.max(...D.slice(s,i).map(x=>x.h));if(c>m)return mk(1,c,D[s].l-.1*a,rr,'Снятие ликвидности под минимумом и слом структуры',sh&&sh.p>c?sh.p:undefined)}
+            if(sh)for(let s=i-1;s>=i-6&&s>sh.p;s--)if(D[s].h>sh.p&&D[s].c<sh.p){const m=Math.min(...D.slice(s,i).map(x=>x.l));if(c<m)return mk(-1,c,D[s].h+.1*a,rr,'Снятие ликвидности над максимумом и слом структуры',sl&&sl.p<c?sh.p:undefined)}}},
+
+        emacross:{n:'EMA 9/21 Cross', short:'Пересечение EMA', d:'Пересечение быстрой (9) и медленной (21) EMA.',f:(i,I,D,rr)=>{if(i<25)return;
+            const e9=ema(D.map(x=>x.c),9), e21=ema(D.map(x=>x.c),21);
+            const c=D[i].c, a=I.a[i];
+            if(e9[i-1]<=e21[i-1]&&e9[i]>e21[i])return mk(1,c,c-1.5*a,rr,'Бычье пересечение EMA 9 и EMA 21');
+            if(e9[i-1]>=e21[i-1]&&e9[i]<e21[i])return mk(-1,c,c+1.5*a,rr,'Медвежье пересечение EMA 9 и EMA 21')}},
+
+        pinbar:{n:'Price Action: Pin Bar', short:'Пин-бар у уровня', d:'Свеча с длинной тенью и маленьким телом у уровня.',f:(i,I,D,rr)=>{if(i<10)return;const x=D[i],a=I.a[i];
+            const body=Math.abs(x.c-x.o), fullRange=x.h-x.l;
+            if(fullRange<=0)return;
+            const upperShadow=x.h-Math.max(x.o,x.c), lowerShadow=Math.min(x.o,x.c)-x.l;
+            if(lowerShadow>fullRange*0.6&&body<fullRange*0.3&&x.c>x.o)return mk(1,x.c,x.l-.2*a,rr,'Бычий Pin Bar с длинной нижней тенью');
+            if(upperShadow>fullRange*0.6&&body<fullRange*0.3&&x.c<x.o)return mk(-1,x.c,x.h+.2*a,rr,'Медвежий Pin Bar с длинной верхней теньью')}},
+
+        bos:{n:'Слом структуры (BOS)', short:'Пробой локального хая/лоу', d:'Импульсный пробой локального экстремума с продолжением тренда.',f:(i,I,D,rr)=>{if(i<20)return;const c=D[i].c, a=I.a[i];
+            const prevHigh=Math.max(...D.slice(i-15,i-1).map(x=>x.h));
+            const prevLow=Math.min(...D.slice(i-15,i-1).map(x=>x.l));
+            if(c>prevHigh&&D[i-1].c<=prevHigh&&c>D[i].o)return mk(1,c,c-1.5*a,rr,'Импульсный слом структуры вверх (BOS)');
+            if(c<prevLow&&D[i-1].c>=prevLow&&c<D[i].o)return mk(-1,c,c+1.5*a,rr,'Импульсный слом структуры вниз (BOS)')}},
+
+        bbwsq:{n:'Сужение волатильности', short:'Прорыв полос Боллинджера', d:'Взрывной выход цены из зоны сужения волатильности (BBW Squeeze).',f:(i,I,D,rr)=>{if(i<25)return;const bbwArr=I.bb, c=D[i].c, a=I.a[i];
+            const isSqueeze=bbwArr[i-1]<2.5&&bbwArr[i-2]<2.5;
+            if(isSqueeze&&c>D[i-1].h&&c>D[i].o)return mk(1,c,c-1.5*a,rr,'Прорыв после сужения волатильности (BBW Squeeze вверх)');
+            if(isSqueeze&&c<D[i-1].l&&c<D[i].o)return mk(-1,c,c+1.5*a,rr,'Прорыв после сужения волатильности (BBW Squeeze вниз)')}},
+
+        liqgrab:{n:'Ложный пробой (Turtle)', short:'Заброс за уровень и возврат', d:'Сбор стопов за экстремумом с резким закрытием внутрь диапазона.',f:(i,I,D,rr)=>{if(i<20)return;const x=D[i], px=D[i-1], a=I.a[i];
+            const h10=Math.max(...D.slice(i-15,i-1).map(z=>z.h));
+            const l10=Math.min(...D.slice(i-15,i-1).map(z=>z.l));
+            if(px.h>h10&&x.c<h10&&x.c<x.o)return mk(-1,x.c,x.h+.2*a,rr,'Ложный пробой максимума (Liquidity Grab / Turtle Soup)');
+            if(px.l<l10&&x.c>l10&&x.c>x.o)return mk(1,x.c,x.l-.2*a,rr,'Ложный пробой минимума (Liquidity Grab / Turtle Soup)')}}
+    };
+
+    function zones(D,I){const z=[],n=D.length-1;
+        for(let k=2;k<n;k++){const a=I.a[k];
+            if(D[k].l>D[k-2].h&&D[k].l-D[k-2].h>.3*a)z.push({t:'FVG',dir:1,lo:D[k-2].h,hi:D[k].l,s:k-1,c:k});
+            if(D[k].h<D[k-2].l&&D[k-2].l-D[k].h>.3*a)z.push({t:'FVG',dir:-1,lo:D[k].h,hi:D[k-2].l,s:k-1,c:k});
+            if(k>12){const b=Math.abs(D[k].c-D[k].o),hh=Math.max(...D.slice(k-10,k).map(x=>x.h)),ll=Math.min(...D.slice(k-10,k).map(x=>x.l));
+                if(D[k].c>hh&&D[k].c>D[k].o&&b>1.2*a){for(let m=k-1;m>=k-6;m--)if(D[m].c<D[m].o){if(!z.some(q=>q.t=='OB'&&q.s==m))z.push({t:'OB',dir:1,lo:D[m].l,hi:D[m].o,s:m,c:k});break}}
+                if(D[k].c<ll&&D[k].c<D[k].o&&b>1.2*a){for(let m=k-1;m>=k-6;m--)if(D[m].c>D[m].o){if(!z.some(q=>q.t=='OB'&&q.s==m))z.push({t:'OB',dir:1,lo:D[m].o,hi:D[m].h,s:m,c:k});break}}}}
+        z.forEach(q=>{q.e=null;for(let j=q.c+1;j<D.length;j++){const br=q.t=='FVG'?(q.dir>0?D[j].l<=q.lo:D[j].h>=q.hi):(q.dir>0?D[j].c<q.lo:D[j].c>q.hi);if(br){q.e=j;break}}});return z}
+
+    function levels(D,I){const L=[],n=D.length-1,dy=t=>Math.floor(t/864e5),wk=t=>Math.floor((t/864e5+3)/7);
+        [['D',dy],['W',wk]].forEach(([k,f])=>{const cur=f(D[n].t);let pv=-1;for(let i=n;i>=0;i--)if(f(D[i].t)<cur){pv=f(D[i].t);break}if(pv<0||f(D[0].t)>=pv)return;const ix=D.map((x,i)=>i).filter(i=>f(D[i].t)==pv);if(!ix.length)return;
+            L.push({k:'P'+k+'H',p:Math.max(...ix.map(i=>D[i].h)),s:ix[0],e:null},{k:'P'+k+'L',p:Math.min(...ix.map(i=>D[i].l)),s:ix[0],e:null})});
+        const ph=[],pl=[];for(let j=3;j<n-3;j++){const w=[1,2,3];if(D[j].h>Math.max(...w.flatMap(k=>[D[j-k].h,D[j+k].h])))ph.push(j);if(D[j].l<Math.min(...w.flatMap(k=>[D[j-k].l,D[j+k].l])))pl.push(j)}
+        [[ph,'h','EQH'],[pl,'l','EQL']].forEach(([a,f,k])=>{a=a.filter(j=>j>n-200);for(let u=a.length-1;u>0;u--){const j=a[u],m=a[u-1];if(Math.abs(D[j][f]-D[m][f])<.25*I.a[j]){const p=f=='h'?Math.max(D[j][f],D[m][f]):Math.min(D[j][f],D[m][f]);let e=null;for(let q=j+1;q<=n;q++)if(f=='h'?D[q].h>p:D[q].l<p){e=q;break}L.push({k,p,s:m,e});u--}}});
+        return L}
+
+    function zf(s){return A.zones.find(z=>z.c<s.i&&(z.e==null||z.e>s.i)&&z.dir==s.dir&&s.entry>=z.lo*.998&&s.entry<=z.hi*1.002)}
+    function cfstat(){const g=[['Без зоны',s=>!zf(s)],['В зоне FVG',s=>{const z=zf(s);return z&&z.t=='FVG'}],['В зоне OB',s=>{const z=zf(s);return z&&z.t=='OB'}]],c=A.sigs.filter(s=>s.k!='ret'&&s.res!=null);
+        $('#cfs').innerHTML=g.map(([n,f])=>{const a=c.filter(f),w=a.filter(s=>s.res>0).length,R=a.reduce((t,s)=>t+s.res,0);return `<tr><td>${n}</td><td>${a.length}</td><td>${a.length?Math.round(w/a.length*100):0}%</td><td>${R.toFixed(1)}</td><td>${a.length?(R/a.length).toFixed(2):'—'}</td></tr>`}).join('')}
+    function cf(s){const z=A.zones.find(z=>z.c<s.i&&(z.e==null||z.e>s.i)&&z.dir==s.dir&&s.entry>=z.lo*.998&&s.entry<=z.hi*1.002);return z?`<br><b class="${s.dir>0?'up':'dn'}">Конфлюэнс:</b> вход внутри ${s.dir>0?'бычьего':'медвежьего'} ${z.t}`:''}
+
+    function analyze(D){if(!D || !D.length) return {I:{e20:[],e50:[],r:[],a:[],sm:[],sd:[],mc:{line:[],signal:[],hist:[]},st:[],bb:[],cc:[],mf:[],obv:[],roc:[]},sigs:[],zones:[],lv:[]};
+        const c=D.map(x=>x.c),I={e20:ema(c,20),e50:ema(c,50),r:rsi(c),a:atr(D),sm:sma(c,20),sd:stdv(c,20),mc:macd(c),st:stoch(D),bb:bbw(c),cc:cci(D),mf:mfi(D),obv:obv(D),roc:roc(c)},sigs=[],n=D.length-1,Z=zones(D,I),Lv=levels(D,I);
+        for(const k in S){if(!cfg.on[k])continue;let last=-99;for(let i=0;i<n;i++){if(i-last<6)continue;const s=S[k].f(i,I,D,cfg.rr,Z);if(!s)continue;s.i=i;s.k=k;last=i;s.res=null;
+            for(let j=i+1;j<D.length;j++){const sl=s.dir>0?D[j].l<=s.sl:D[j].h>=s.sl,tp=s.dir>0?D[j].h>=s.tp:D[j].l<=s.tp;if(sl){s.res=-1;break}if(tp){s.res=Math.abs(s.tp-s.entry)/Math.abs(s.entry-s.sl);break}}sigs.push(s)}}
+        sigs.sort((a,b)=>a.i-b.i);return{I,sigs,zones:Z,lv:Lv}}
+
+    async function refresh(first){
+        if (stocksCoinsList.includes(cfg.sym) && isStockMarketClosed()) {
+            $('#st').textContent = 'Рынок закрыт';
+            $('#st').className = 'pill demo';
+            $('#pr').textContent = '—';
+            $('#ch').innerHTML = '<span class="chg-badge mut">Выходной день</span>';
+            $('#vol-24h').textContent = '—';
+            $('#tr').textContent = 'Рынок не работает';
+            $('#vo').textContent = '—';
+            D = [];
+            renderActiveStrategiesCards();
+            return;
+        }
+
+        const r=await load(cfg.sym,cfg.tf);D=r.D;live=r.live;A=analyze(D);
+        if(!TICKER_DATA[cfg.sym]) {
+            if (stocksCoinsList.includes(cfg.sym)) TICKER_DATA = await fetchStockData();
+            else TICKER_DATA = await fetchCryptoData();
+        }
+        await fetchFearAndGreed();
+        await fetchDomHistory();
+        await updateMarketOverview();
+        const key=s=>cfg.sym+cfg.tf+s.k+D[s.i].t;
+        if(first)A.sigs.forEach(s=>seen.add(key(s)));else A.sigs.filter(s=>s.i==D.length-2&&!seen.has(key(s))).forEach(s=>{seen.add(key(s));alert_(s);sendTelegramAlert(`⚡ *${cfg.sym}* (${cfg.tf})\nНайдено: *${S[s.k].n}*\nНаправление: *${s.dir>0?'LONG 📈':'SHORT 📉'}*\nВход: \`${fmt(s.entry)}\` | SL: \`${fmt(s.sl)}\` | TP: \`${fmt(s.tp)}\``)});
+        if(!sel&&!userPanned)off=0;
+        render()
+    }
+    function alert_(s){
+        try{
+            triggerVibration();
+            playBeepSound();
+            if(Notification.permission==='granted')new Notification(`${cfg.sym} ${s.dir>0?'LONG':'SHORT'}`,{body:`${S[s.k].n}: вход ${fmt(s.entry)}`})
+        }catch(e){}
+    }
+
+    function updateRiskCalc() {
+        const cap = parseFloat($('#cap').value) || 0;
+        const rk = parseFloat($('#rk').value) || 0;
+        const riskUsd = cap * (rk / 100);
+        const profitUsd = riskUsd * cfg.rr;
+        
+        $('#calc-risk-usd').textContent = '$' + riskUsd.toFixed(2);
+        const profitEl = $('#calc-profit-usd');
+        if (profitEl) profitEl.textContent = '$' + profitUsd.toFixed(2);
+    }
+
+    function render(){
+        if (stocksCoinsList.includes(cfg.sym) && isStockMarketClosed()) return;
+        if (!D.length) return;
+        const c=D[D.length-1],p=D[D.length-2],e=$('#st');e.textContent=live?'● LIVE':'ONLINE';e.className='pill '+(live?'live':'demo');
+        $('#sy').textContent=cfg.sym + (stocksCoinsList.includes(cfg.sym) ? ' (Акция)' : ' / USDT');
+        $('#pr').textContent=fmt(c.c);const ch=(c.c/p.c-1)*100;$('#ch').innerHTML=`<span class="chg-badge ${ch>=0?'up':'dn'}">${ch>=0?'+':''}${ch.toFixed(2)}%</span>`;
+        
+        const tknData = TICKER_DATA[cfg.sym];
+        const volVal = tknData?.v ? fmtVol(tknData.v) : '—';
+        $('#vol-24h').textContent = volVal + (stocksCoinsList.includes(cfg.sym) ? ' USD' : (tknData?.v ? ' USDT' : ''));
+
+        const I=A.I,n=D.length-1;
+        const isBull = I.e20[n]>I.e50[n]&&c.c>I.e50[n];
+        const isBear = I.e20[n]<I.e50[n]&&c.c<I.e50[n];
+        
+        const trText = isBull ? '<span class="up">Бычий</span>' : isBear ? '<span class="dn">Медвежий</span>' : 'Флэт';
+        $('#tr').innerHTML = trText;
+
+        const trVis = $('#tr-visual');
+        if (isBull) {
+            trVis.className = 'tile-visual-icon up';
+            trVis.innerHTML = '↗';
+        } else if (isBear) {
+            trVis.className = 'tile-visual-icon dn';
+            trVis.innerHTML = '↘';
+        } else {
+            trVis.className = 'tile-visual-icon flat';
+            trVis.innerHTML = '≈';
+        }
+
+        const volValPct = (I.a[n]/c.c*100);
+        $('#vo').textContent = volValPct.toFixed(2) + '%';
+
+        const sparkCv = $('#vol-sparkline-cv');
+        if (sparkCv) {
+            const sCtx = sparkCv.getContext('2d');
+            const sW = sparkCv.clientWidth || 50, sH = sparkCv.height;
+            sCtx.clearRect(0, 0, sW, sH);
+            
+            const recentCandles = D.slice(-15);
+            const sHi = Math.max(...recentCandles.map(x => x.h));
+            const sLo = Math.min(...recentCandles.map(x => x.l));
+            const sSpan = sHi - sLo || 1;
+            
+            sCtx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#f0b90b';
+            sCtx.lineWidth = 1.5;
+            sCtx.beginPath();
+            
+            recentCandles.forEach((candle, idx) => {
+                const sx = (idx / (recentCandles.length - 1)) * sW;
+                const sy = sH - 4 - ((candle.c - sLo) / sSpan) * (sH - 8);
+                if (idx === 0) sCtx.moveTo(sx, sy);
+                else sCtx.lineTo(sx, sy);
+            });
+            sCtx.stroke();
+        }
+
+        updateRiskCalc();
+        renderActiveStrategiesCards();
+        if (ACTIVE_TAB !== 1 || signalsActiveSignalIndex === null) {
+            lst();
+        }
+        draw();
+        $('#dn').textContent=live?'Источник данных: Live API.':'Режим реального времени.'
+    }
+
+    function renderActiveStrategiesCards() {
+        const container = $('#all-active-strategies-signals');
+        const activeKeys = Object.keys(S).filter(k => cfg.on[k]);
+        $('#active-strat-count').textContent = `${activeKeys.length} активных`;
+
+        if (!activeKeys.length) {
+            container.innerHTML = '<p class="mut">Нет включенных стратегий в настройках.</p>';
+            return;
+        }
+
+        let html = '';
+        activeKeys.forEach(k => {
+            const stratSignals = A.sigs.filter(s => s.k === k);
+            const s = stratSignals[stratSignals.length - 1];
+            const stratMeta = S[k];
+
+            if (!s) {
+                html += `
+                    <div class="signal-card-pro">
+                        <div class="signal-card-header">
+                            <div class="signal-title-group">
+                                <div class="signal-asset-name">${stratMeta.n}</div>
+                                <div class="signal-strat-name">Ожидание сигнала на ${cfg.sym} (${cfg.tf})</div>
+                            </div>
+                            <span class="tag mut">НЕТ СИГНАЛА</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const isLong = s.dir > 0;
+                const b = D.length - 1 - s.i;
+                const ageText = b <= 0 ? 'только что' : `${b} св. назад`;
+                const rr = Math.abs(s.tp - s.entry) / Math.abs(s.entry - s.sl);
+
+                html += `
+                    <div class="signal-card-pro ${isLong ? 'long' : 'short'}">
+                        <div class="signal-card-header">
+                            <div class="signal-title-group">
+                                <div class="signal-asset-name">${stratMeta.n}</div>
+                                <div class="signal-strat-name">${cfg.sym} · ${cfg.tf} · <span style="color:var(--text-main);">${ageText}</span></div>
+                            </div>
+                            <span class="tag ${isLong ? 'up' : 'dn'}">${isLong ? '▲ LONG' : '▼ SHORT'}</span>
+                        </div>
+                        <div class="signal-metrics-grid">
+                            <div class="signal-metric-item">
+                                <span class="signal-metric-label">Вход</span>
+                                <span class="signal-metric-val">${fmt(s.entry)}</span>
+                            </div>
+                            <div class="signal-metric-item">
+                                <span class="signal-metric-label">Стоп (SL)</span>
+                                <span class="signal-metric-val dn">${fmt(s.sl)}</span>
+                            </div>
+                            <div class="signal-metric-item">
+                                <span class="signal-metric-label">Цель (TP)</span>
+                                <span class="signal-metric-val up">${fmt(s.tp)}</span>
+                            </div>
+                        </div>
+                        <div class="signal-footer-info">
+                            <span>RR: <b>${rr.toFixed(2)}</b></span>
+                            <span style="max-width: 65%; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${s.note}">${s.note}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+        container.innerHTML = html;
+    }
+
+    function age(s){const b=D.length-1-s.i;return b<=0?'только что':b+' св. назад'}
+    
+    function setSignalsFilter(filt) {
+        SIGNALS_FILTER = filt;
+        $('#sig-filt-all').classList.toggle('on', filt === 'ALL');
+        $('#sig-filt-long').className = 'filter-pill ' + (filt === 'LONG' ? 'on-long' : '');
+        $('#sig-filt-short').className = 'filter-pill ' + (filt === 'SHORT' ? 'on-short' : '');
+        lst();
+    }
+
+    function setScanFilter(filt) {
+        SCAN_FILTER = filt;
+        $('#scan-filt-all').classList.toggle('on', filt === 'ALL');
+        $('#scan-filt-long').className = 'filter-pill ' + (filt === 'LONG' ? 'on-long' : '');
+        $('#scan-filt-short').className = 'filter-pill ' + (filt === 'SHORT' ? 'on-short' : '');
+        renderScanResults();
+    }
+
+    function lst(){
+        let h='';for(const k in S){const a=A.sigs.filter(s=>s.k==k&&s.res!=null),w=a.filter(s=>s.res>0).length;h+= `<tr><td>${S[k].n}</td><td>${a.length}</td><td>${a.length?Math.round(w/a.length*100):0}%</td><td>${a.reduce((t,s)=>t+s.res,0).toFixed(1)}</td></tr>`}$('#sts').innerHTML=h;cfstat();
+        
+        let filteredSigs = A.sigs.slice().reverse();
+        if (SIGNALS_FILTER === 'LONG') filteredSigs = filteredSigs.filter(s => s.dir > 0);
+        else if (SIGNALS_FILTER === 'SHORT') filteredSigs = filteredSigs.filter(s => s.dir < 0);
+
+        $('#ls').innerHTML = filteredSigs.map((s, n) => {
+            const r = s.res == null ? 'в игре' : s.res > 0 ? `<span class="up">TP +${s.res.toFixed(1)}R</span>` : '<span class="dn">SL −1R</span>';
+            const isOpen = signalsActiveSignalIndex === n;
+            return `
+                <div class="signal-card-pro ${s.dir > 0 ? 'long' : 'short'}" id="signals-card-${n}" onclick="toggleSignalsSignal(${n})" style="cursor: pointer;">
+                    <div class="signal-card-header" style="margin-bottom:8px;">
+                        <div class="signal-title-group">
+                            <div class="signal-asset-name">${cfg.sym}</div>
+                            <div class="signal-strat-name">${S[s.k].n} · ${age(s)}</div>
+                        </div>
+                        <span class="tag ${s.dir > 0 ? 'up' : 'dn'}">${s.dir > 0 ? '▲ LONG' : '▼ SHORT'}</span>
+                    </div>
+                    <div class="mut" style="margin-bottom:4px;">Результат: ${r}</div>
+                    <div id="signals-chart-slot-${n}">${isOpen ? getSignalsCardInnerHtml(n, s) : ''}</div>
+                </div>
+            `;
+        }).join('') || '<p class="mut">Сигналов не найдено.</p>';
+
+        if (signalsActiveSignalIndex !== null) {
+            drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);
+            initInteractiveChartEvents('signals', signalsActiveSignalIndex);
+        }
+    }
+    
+    function draw(){
+        const cv=$('#cv'),W=cv.clientWidth;if(!W)return;
+        const isFS=!!document.fullscreenElement;
+        const H=isFS?cv.parentElement.clientHeight:(cfg.chartHeight||420),dpr=devicePixelRatio||1;
+        cv.width=W*dpr;cv.height=H*dpr;
+        const g=cv.getContext('2d');g.scale(dpr,dpr);
+        const isLight = document.body.classList.contains('light-theme');
+        const bg=isLight?'#f8f9fa':'#121418',gridClr=isLight?'#e0e0e0':'#1e2026';
+        
+        let upClr='#0ecb81', dnClr='#f6465d';
+        if (cfg.candleStyle === 'neon') { upClr = '#00ffc4'; dnClr = '#ff0055'; }
+        else if (cfg.candleStyle === 'monochrome') { upClr = isLight ? '#333333' : '#ffffff'; dnClr = isLight ? '#888888' : '#555555'; }
+
+        const txtClr='#848e9c',pClr=getComputedStyle(document.body).getPropertyValue('--primary').trim()||'#f0b90b';
+        
+        off = Math.max(-10, Math.min(D.length - 3, off));
+
+        const I=A.I,end=D.length-off,st=Math.max(0,end-N),V=D.slice(st,end);
+        
+        const PH = Math.round(H * 0.74);
+        
+        const pad=65,rightSpace=0;
+        const bw=(W-pad)/(N + rightSpace);
+        
+        let rawHi=Math.max(...V.map(x=>x.h)), rawLo=Math.min(...V.map(x=>x.l));
+        if(sel&&sel.i>=st&&sel.i<end){rawHi=Math.max(rawHi,sel.tp,sel.entry,sel.sl);rawLo=Math.min(rawLo,sel.tp,sel.entry,sel.sl)}
+        
+        let rawMid = (rawHi + rawLo) / 2 + priceCenterOffset;
+        let maxPossibleSpan = rawHi - rawLo;
+        if(maxPossibleSpan <= 0) maxPossibleSpan = 1;
+        
+        let minSpan = maxPossibleSpan; 
+        let currentSpan = maxPossibleSpan / priceZoom;
+        if(currentSpan < minSpan) {
+            currentSpan = minSpan;
+            priceZoom = maxPossibleSpan / currentSpan;
+        }
+
+        let hi = rawMid + currentSpan / 2, lo = rawMid - currentSpan / 2;
+
+        const y=p=>8+(hi-p)/(hi-lo)*(PH-16),x=i=>(i-st+.5)*bw;
+        g.fillStyle=bg;g.fillRect(0,0,W,H);
+        
+        if (cfg.gridLines) {
+            g.save();
+            g.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+            g.lineWidth = 1;
+            g.setLineDash([2, 4]);
+            for(let k=0; k<=5; k++){
+                const p = lo + (hi - lo) * k / 5;
+                g.beginPath(); g.moveTo(12, y(p)); g.lineTo(W - pad, y(p)); g.stroke();
+            }
+            const timeStepGrid = Math.max(1, Math.floor(N / 6));
+            for(let i=st; i<end; i+=timeStepGrid){
+                g.beginPath(); g.moveTo(x(i), 0); g.lineTo(x(i), PH); g.stroke();
+            }
+            g.setLineDash([]);
+            g.restore();
+        }
+
+        g.font='10px Roboto';g.lineWidth=1;g.strokeStyle=gridClr;g.fillStyle=txtClr;
+        const targetSteps = 4;
+        const rawStep = (hi - lo) / targetSteps;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const residual = rawStep / magnitude;
+        let niceStep = magnitude;
+        if (residual > 5) niceStep = 10 * magnitude;
+        else if (residual > 2) niceStep = 5 * magnitude;
+        else if (residual > 1) niceStep = 2 * magnitude;
+
+        const firstPriceMark = Math.ceil(lo / niceStep) * niceStep;
+        let lastDrawnY = -999;
+
+        for(let p = firstPriceMark; p <= hi; p += niceStep){
+            const py = y(p);
+            if (py >= 8 && py <= PH - 8) {
+                if (Math.abs(py - lastDrawnY) > 16) {
+                    g.beginPath(); g.moveTo(12, py); g.lineTo(W - pad, py); g.stroke();
+                    g.fillText(fmt(p), W - pad + 4, py + 3);
+                    lastDrawnY = py;
+                }
+            }
+        }
+
+        g.save();
+        g.beginPath();
+        g.rect(12, 0, W - pad - 12, PH);
+        g.clip();
+
+        if(cfg.fvg||cfg.ob){
+            const act=A.zones.filter(z=>z.c<end&&(z.e==null||z.e>=end)&&(z.t=='FVG'?cfg.fvg:cfg.ob)),
+                  pick=[...act.filter(z=>z.t=='FVG').slice(-6),...act.filter(z=>z.t=='OB').slice(-4)];
+            pick.forEach(z=>{
+                const x0=Math.max(12, x(Math.max(z.s,st))-bw/2),c=z.dir>0?upClr:dnClr,o=z.t=='OB',h=Math.max(2,y(z.lo)-y(z.hi));
+                g.globalAlpha=o?.22:.12;g.fillStyle=c;g.fillRect(x0,y(z.hi),W-pad-x0,h);
+                g.globalAlpha=o?.8:.5;g.strokeStyle=c;g.lineWidth=1;
+                if(!o)g.setLineDash([3,3]);g.strokeRect(x0,y(z.hi),W-pad-x0,h);g.setLineDash([]);
+                g.globalAlpha=1;g.fillStyle=c;g.fillText(z.t+(z.dir>0?' ▲':' ▼'),x0+3,y(z.hi)+10);
+            });
+        }
+
+        if (cfg.chartType === 'line') {
+            g.strokeStyle = pClr;
+            g.lineWidth = cfg.thickCandles ? 2.5 : 1.5;
+            g.beginPath();
+            let started = false;
+            V.forEach((c, n) => {
+                const i = st + n;
+                const px = x(i), py = y(c.c);
+                if (!started) { g.moveTo(px, py); started = true; }
+                else { g.lineTo(px, py); }
+            });
+            g.stroke();
+        } else {
+            V.forEach((c, n)=>{
+                const i=st+n,u=c.c>=c.o,color=u?upClr:dnClr;
+                g.strokeStyle=g.fillStyle=color;
+                g.lineWidth = cfg.thickCandles ? 2 : 1;
+                g.beginPath();g.moveTo(Math.floor(x(i))+0.5,y(c.h));g.lineTo(Math.floor(x(i))+0.5,y(c.l));g.stroke();
+                const topY=y(Math.max(c.o,c.c)),botY=y(Math.min(c.o,c.c)),h=Math.max(1,botY-topY);
+                g.fillRect(x(i)-bw*(cfg.thickCandles?.44:.38),topY,bw*(cfg.thickCandles?.88:.76),h);
+            });
+        }
+
+        if (cfg.showExtremums) {
+            g.font = '9px Roboto'; g.textAlign = 'center';
+            V.forEach((c, n) => {
+                const i = st + n;
+                if (i > 2 && i < D.length - 3) {
+                    const isLocalHi = D.slice(i-2, i+3).every(x => x.h <= c.h);
+                    const isLocalLo = D.slice(i-2, i+3).every(x => x.l >= c.l);
+                    if (isLocalHi) { g.fillStyle = dnClr; g.fillText('H', x(i), y(c.h) - 6); }
+                    if (isLocalLo) { g.fillStyle = upClr; g.fillText('L', x(i), y(c.l) + 14); }
+                }
+            });
+        }
+
+        if(cfg.liq){
+            g.setLineDash([2,3]);g.lineWidth=1;
+            A.lv.forEach(l=>{
+                if(l.p<lo||l.p>hi||l.s>=end||(l.e!=null&&l.e<end))return;
+                const c=/H$/.test(l.k)?dnClr:upClr;
+                g.strokeStyle=g.fillStyle=c;
+                g.beginPath();g.moveTo(x(Math.max(l.s,st)),y(l.p));g.lineTo(W-pad,y(l.p));g.stroke();
+                g.textAlign='right';g.fillText(l.k,W-pad-4,y(l.p)-3);g.textAlign='left';
+            });
+            g.setLineDash([]);
+        }
+
+        const line=(a,c)=>{g.strokeStyle=c;g.lineWidth=1.2;g.beginPath();let f=1;for(let i=st;i<end;i++){if(isNaN(a[i]))continue;const yy=y(a[i]);f?(g.moveTo(x(i),yy),f=0):g.lineTo(x(i),yy)}g.stroke()};
+        if(cfg.em){line(I.e20,pClr);line(I.e50,'#9353d3')}
+        
+        if (cfg.sigArrows) {
+            A.sigs.forEach(s=>{
+                if(s.i<st||s.i>=end)return;
+                const c=D[s.i],up=s.dir>0,px=x(s.i),py=up?y(c.l)+12:y(c.h)-12;
+                g.fillStyle=up?upClr:dnClr;g.beginPath();g.moveTo(px,py+(up?-6:6));g.lineTo(px-5,py+(up?4:-4));g.lineTo(px+5,py+(up?4:-4));g.fill();
+            });
+        }
+
+        if(sel&&sel.i>=st&&sel.i<end)[[sel.entry,pClr,'Entry'],[sel.sl,dnClr,'SL'],[sel.tp,upClr,'TP']].forEach(([p,c,t])=>{
+            g.strokeStyle=g.fillStyle=c;g.setLineDash([4,4]);g.beginPath();g.moveTo(x(sel.i),y(p));g.lineTo(W-pad,y(p));g.stroke();g.setLineDash([]);
+            g.fillText(t+' '+fmt(p),x(sel.i)+4,y(p)-3);
+        });
+
+        g.restore();
+
+        const lastC = D[D.length - 1];
+        const lastCandleX = x(D.length - 1);
+        const lastCandleY = y(lastC.c);
+        
+        g.save();
+        g.strokeStyle = isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.25)';
+        g.lineWidth = 1;
+        g.setLineDash([3, 3]);
+        g.beginPath();
+        if (off > 0) {
+            g.moveTo(12, lastCandleY);
+            g.lineTo(W - pad, lastCandleY);
+        } else {
+            g.moveTo(Math.min(lastCandleX, W - pad), lastCandleY);
+            g.lineTo(W - pad, lastCandleY);
+        }
+        g.stroke();
+        g.restore();
+
+        const u = lastC.c >= lastC.o, tagClr = u ? upClr : dnClr;
+        const tagY = y(lastC.c) - 9;
+        g.fillStyle = tagClr; g.fillRect(W - pad, tagY, pad, 18);
+        g.fillStyle = '#000'; g.font = '700 10px Roboto'; g.fillText(fmt(lastC.c), W - pad + 4, y(lastC.c) + 3);
+        
+        lastTagClickCoords = { x1: W - pad, x2: W, y1: tagY, y2: tagY + 18 };
+
+        const timelineY = PH + 8;
+        g.strokeStyle = gridClr; g.beginPath(); g.moveTo(12, timelineY); g.lineTo(W - pad, timelineY); g.stroke();
+        g.fillStyle = txtClr; g.font = '9px Roboto'; g.textAlign = 'center';
+        const timeStep = Math.max(1, Math.floor(N / 5));
+        for (let i = st; i < end; i += timeStep) {
+            const dt = new Date(D[i].t);
+            const timeStr = dt.getHours().toString().padStart(2, '0') + ':' + dt.getMinutes().toString().padStart(2, '0');
+            const tx = x(i);
+            if (tx >= 28 && tx <= W - pad) {
+                g.beginPath(); g.moveTo(tx, timelineY); g.lineTo(tx, timelineY + 3); g.stroke();
+                g.fillText(timeStr, tx, timelineY + 14);
+            }
+        }
+
+        const ry = PH + 32, rh = Math.max(40, H - PH - 32); 
+        g.fillStyle = isLight ? '#ffffff' : '#181a20'; 
+        g.fillRect(0, ry, W, rh); 
+        g.strokeStyle = gridClr; 
+        g.strokeRect(0, ry, W, rh);
+
+        g.save();
+        g.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+        g.lineWidth = 1;
+        g.setLineDash([2, 4]);
+        [0.25, 0.5, 0.75].forEach(ratio => {
+            const gy = ry + rh * ratio;
+            g.beginPath(); g.moveTo(12, gy); g.lineTo(W - pad, gy); g.stroke();
+        });
+        g.setLineDash([]);
+        g.restore();
+        
+        if (SUB_INDICATOR === 'RSI') {
+            [30,70].forEach(v=>{
+                g.setLineDash([2,2]);g.strokeStyle = isLight ? '#ccc' : '#444'; g.beginPath();g.moveTo(12,ry+rh*(1-v/100));g.lineTo(W-pad,ry+rh*(1-v/100));g.stroke();
+                g.fillStyle=txtClr;g.fillText(v,W - 35,ry+rh*(1-v/100)+3);
+            });
+            g.setLineDash([]);g.strokeStyle=pClr;g.lineWidth=1.2;g.beginPath();
+            let f=1;for(let i=st;i<end;i++){if(isNaN(I.r[i]))continue;const yy=ry+rh*(1-I.r[i]/100);f?(g.moveTo(x(i),yy),f=0):g.lineTo(x(i),yy)}
+            g.stroke();g.fillStyle=txtClr;g.textAlign='left';g.fillText('RSI 14: '+(I.r[end-1]||0).toFixed(1), 16, ry+14);
+        } else if (SUB_INDICATOR === 'VOL') {
+            const maxV = Math.max(...V.map(k=>k.v)) || 1;
+            V.forEach((c, n) => {
+                const i = st + n;
+                const vH = (c.v / maxV) * (rh - 12);
+                const u = c.c >= c.o;
+                g.fillStyle = u ? 'rgba(14, 203, 129, 0.4)' : 'rgba(246, 70, 93, 0.4)';
+                g.fillRect(x(i)-bw*.38, ry + rh - vH, bw*.76, vH);
+            });
+            g.fillStyle=txtClr;g.textAlign='left';g.fillText('VOL: ' + (D[end-1].v||0).toFixed(1), 16, ry+14);
+            g.textAlign='right'; g.fillText((maxV/1e6).toFixed(1)+'M', W - pad + 38, ry + 12);
+            g.fillText('0', W - pad + 25, ry + rh - 4);
+        } else if (SUB_INDICATOR === 'MACD') {
+            const mc = I.mc;
+            const maxH = Math.max(...V.map((_, idx) => Math.abs(mc.hist[st + idx]) || 0)) || 1;
+            V.forEach((_, n) => {
+                const i = st + n;
+                const val = mc.hist[i] || 0;
+                const vH = (val / maxH) * (rh / 2 - 2);
+                g.fillStyle = val >= 0 ? upClr : dnClr;
+                g.fillRect(x(i) - bw * .38, ry + rh / 2 - (val >= 0 ? vH : 0), bw * .76, Math.abs(vH));
+            });
+            g.fillStyle = txtClr; g.textAlign='left'; g.fillText('MACD: ' + (mc.hist[end - 1] || 0).toFixed(2), 16, ry + 14);
+            g.textAlign='right'; g.fillText('+'+maxH.toFixed(2), W - pad + 38, ry + 12);
+            g.fillText('-'+maxH.toFixed(2), W - pad + 38, ry + rh - 4);
+        } else if (SUB_INDICATOR === 'STOCH') {
+            const stArr = I.st;
+            [20, 80].forEach(v => {
+                g.setLineDash([2,2]); g.strokeStyle = isLight ? '#ccc' : '#444'; g.beginPath(); g.moveTo(12, ry + rh * (1 - v/100)); g.lineTo(W - pad, ry + rh * (1 - v/100)); g.stroke();
+            });
+            g.setLineDash([]); g.strokeStyle = '#2196f3'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { if (isNaN(stArr[i])) continue; const yy = ry + rh * (1 - stArr[i] / 100); f ? (g.moveTo(i, yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('Stoch: ' + (stArr[end - 1] || 0).toFixed(1), 16, ry + 14);
+        } else if (SUB_INDICATOR === 'ATR') {
+            const atrArr = I.a;
+            const maxA = Math.max(...V.map((_, idx) => atrArr[st + idx])) || 1;
+            const minA = Math.min(...V.map((_, idx) => atrArr[st + idx])) || 0;
+            g.strokeStyle = '#e91e63'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - (atrArr[i] - minA) / (maxA - minA || 1)); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('ATR 14: ' + (atrArr[end - 1]||0).toFixed(2), 16, ry + 14);
+            g.textAlign='right'; g.fillText(maxA.toFixed(2), W - pad + 38, ry + 12); g.fillText(minA.toFixed(2), W - pad + 38, ry + rh - 4);
+        } else if (SUB_INDICATOR === 'BBW') {
+            const bbArr = I.bb;
+            const maxB = Math.max(...V.map((_, idx) => bbArr[st + idx])) || 1;
+            const minB = Math.min(...V.map((_, idx) => bbArr[st + idx])) || 0;
+            g.strokeStyle = '#ff9800'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - (bbArr[i] - minB) / (maxB - minB || 1)); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('BBW 20: ' + (bbArr[end - 1]||0).toFixed(2), 16, ry + 14);
+            g.textAlign='right'; g.fillText(maxB.toFixed(2), W - pad + 38, ry + 12); g.fillText(minB.toFixed(2), W - pad + 38, ry + rh - 4);
+        } else if (SUB_INDICATOR === 'CCI') {
+            const cciArr = I.cc;
+            [ -100, 100 ].forEach(v => {
+                const yy = ry + rh * (1 - (v + 200) / 400);
+                g.setLineDash([2,2]); g.strokeStyle = isLight ? '#ccc' : '#444'; g.beginPath(); g.moveTo(12, yy); g.lineTo(W-pad, yy); g.stroke();
+            });
+            g.setLineDash([]); g.strokeStyle = '#9c27b0'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - (cciArr[i] + 200) / 400); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('CCI 20: ' + (cciArr[end - 1]||0).toFixed(1), 16, ry + 14);
+        } else if (SUB_INDICATOR === 'MFI') {
+            const mfiArr = I.mf;
+            [ 20, 80 ].forEach(v => {
+                const yy = ry + rh * (1 - v / 100);
+                g.setLineDash([2,2]); g.strokeStyle = isLight ? '#ccc' : '#444'; g.beginPath(); g.moveTo(12, yy); g.lineTo(W-pad, yy); g.stroke();
+            });
+            g.setLineDash([]); g.strokeStyle = '#00bcd4'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - mfiArr[i] / 100); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('MFI 14: ' + (mfiArr[end - 1]||0).toFixed(1), 16, ry + 14);
+        } else if (SUB_INDICATOR === 'OBV') {
+            const obvArr = I.obv;
+            const maxO = Math.max(...V.map((_, idx) => obvArr[st + idx])) || 1;
+            const minO = Math.min(...V.map((_, idx) => obvArr[st + idx])) || 0;
+            g.strokeStyle = '#4caf50'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - (obvArr[i] - minO) / (maxO - minO || 1)); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('OBV: ' + (obvArr[end - 1]||0).toFixed(0), 16, ry + 14);
+        } else if (SUB_INDICATOR === 'ROC') {
+            const rocArr = I.roc;
+            const maxR = Math.max(...V.map((_, idx) => rocArr[st + idx])) || 1;
+            const minR = Math.min(...V.map((_, idx) => rocArr[st + idx])) || 0;
+            g.strokeStyle = '#e91e63'; g.lineWidth = 1.2; g.beginPath();
+            let f = 1; for (let i = st; i < end; i++) { const yy = ry + rh * (1 - (rocArr[i] - minR) / (maxR - minR || 1)); f ? (g.moveTo(x(i), yy), f = 0) : g.lineTo(x(i), yy); }
+            g.stroke(); g.fillStyle = txtClr; g.textAlign='left'; g.fillText('ROC 10: ' + (rocArr[end - 1]||0).toFixed(2), 16, ry + 14);
+        }
+    }
+
+    function drawInteractiveChart(type, activeIndex, candles, nVal, offVal) {
+        const cv = $(`#cv-${type}-${activeIndex}`), W = cv?.clientWidth;
+        if (!W || !candles.length) return;
+        const H = 210, dpr = devicePixelRatio || 1;
+        cv.width = W * dpr; cv.height = H * dpr;
+        const g = cv.getContext('2d'); g.scale(dpr, dpr);
+        const isLight = document.body.classList.contains('light-theme');
+        const bg = isLight ? '#f8f9fa' : '#121418', gridClr = isLight ? '#e0e0e0' : '#1e2026';
+        
+        let upClr = '#0ecb81', dnClr = '#f6465d';
+        if (cfg.candleStyle === 'neon') { upClr = '#00ffc4'; dnClr = '#ff0055'; }
+        else if (cfg.candleStyle === 'monochrome') { upClr = isLight ? '#333333' : '#ffffff'; dnClr = isLight ? '#888888' : '#555555'; }
+
+        const txtClr = '#848e9c', pClr = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#f0b90b';
+        const s = type === 'scanner' ? window._scannerResults[activeIndex].s : A.sigs.slice().reverse()[activeIndex];
+        if (!s) return;
+        const V_candles = candles;
+        
+        const end = V_candles.length - offVal;
+        const st = Math.max(0, end - nVal);
+        const V = V_candles.slice(st, end);
+        const pad = 65, rightSpace = 5, chartH = H - 25;
+        const bw = (W - pad) / (nVal + rightSpace);
+        
+        let hi = Math.max(...V.map(x => x.h)), lo = Math.min(...V.map(x => x.l));
+        hi = Math.max(hi, s.tp, s.entry, s.sl);
+        lo = Math.min(lo, s.tp, s.entry, s.sl);
+
+        const y = p => 8 + (hi - p) / (hi - lo) * (chartH - 16), x = i => (i - st + 0.5) * bw;
+        
+        g.fillStyle = bg; g.fillRect(0, 0, W, H);
+        
+        if (cfg.gridLines) {
+            g.save();
+            g.strokeStyle = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.04)';
+            g.lineWidth = 1;
+            g.setLineDash([2, 4]);
+            for(let k=0; k<=4; k++){
+                const p = lo + (hi - lo) * k / 4;
+                g.beginPath(); g.moveTo(12, y(p)); g.lineTo(W - pad, y(p)); g.stroke();
+            }
+            const timeStepGrid = Math.max(1, Math.floor(nVal / 5));
+            for(let i=st; i<end; i+=timeStepGrid){
+                g.beginPath(); g.moveTo(x(i), 0); g.lineTo(x(i), chartH); g.stroke();
+            }
+            g.setLineDash([]);
+            g.restore();
+        }
+
+        g.font='10px Roboto';g.lineWidth=1;g.strokeStyle=gridClr;g.fillStyle=txtClr;
+        
+        for (let k = 0; k < 5; k++) {
+            const p = lo + (hi - lo) * k / 4;
+            g.beginPath(); g.moveTo(12, y(p)); g.lineTo(W - pad, y(p)); g.stroke();
+            g.fillText(fmt(p), W - pad + 6, y(p) + 3);
+        }
+
+        g.save();
+        g.beginPath();
+        g.rect(12, 0, W - pad - 12, chartH);
+        g.clip();
+
+        if (cfg.chartType === 'line') {
+            g.strokeStyle = pClr;
+            g.lineWidth = cfg.thickCandles ? 2.5 : 1.5;
+            g.beginPath();
+            let started = false;
+            V.forEach((c, n) => {
+                const i = st + n;
+                const px = x(i), py = y(c.c);
+                if (!started) { g.moveTo(px, py); started = true; }
+                else { g.lineTo(px, py); }
+            });
+            g.stroke();
+        } else {
+            V.forEach((c, n) => {
+                const i = st + n, u = c.c >= c.o, color = u ? upClr : dnClr;
+                g.strokeStyle = g.fillStyle = color;
+                g.lineWidth = cfg.thickCandles ? 2 : 1;
+                g.beginPath(); g.moveTo(Math.floor(x(i)) + 0.5, y(c.h)); g.lineTo(Math.floor(x(i)) + 0.5, y(c.l)); g.stroke();
+                const topY = y(Math.max(c.o, c.c)), botY = y(Math.min(c.o, c.c)), h = Math.max(1, botY - topY);
+                g.fillRect(x(i) - bw * (cfg.thickCandles?.44:.38), topY, bw * (cfg.thickCandles?.88:.76), h);
+            });
+        }
+
+        if (cfg.showExtremums) {
+            g.font = '9px Roboto'; g.textAlign = 'center';
+            V.forEach((c, n) => {
+                const i = st + n;
+                if (i > 2 && i < V_candles.length - 3) {
+                    const isLocalHi = V_candles.slice(i-2, i+3).every(x => x.h <= c.h);
+                    const isLocalLo = V_candles.slice(i-2, i+3).every(x => x.l >= c.l);
+                    if (isLocalHi) { g.fillStyle = dnClr; g.fillText('H', x(i), y(c.h) - 6); }
+                    if (isLocalLo) { g.fillStyle = upClr; g.fillText('L', x(i), y(c.l) + 14); }
+                }
+            });
+        }
+
+        if (cfg.sigArrows) {
+            const sigCandle = V_candles[s.i];
+            if (sigCandle && s.i >= st && s.i < end) {
+                const up = s.dir > 0, px = x(s.i), py = up ? y(sigCandle.l) + 12 : y(sigCandle.h) - 12;
+                g.fillStyle = up ? upClr : dnClr; g.beginPath();
+                g.moveTo(px, py + (up ? -6 : 6)); g.lineTo(px - 5, py + (up ? 4 : -4)); g.lineTo(px + 5, py + (up ? 4 : -4)); g.fill();
+            }
+        }
+
+        [[s.entry, pClr, 'Entry'], [s.sl, dnClr, 'SL'], [s.tp, upClr, 'TP']].forEach(([p, c, t]) => {
+            g.strokeStyle = g.fillStyle = c; g.setLineDash([4, 4]); g.beginPath();
+            g.moveTo(x(s.i), y(p)); g.lineTo(W - pad, y(p)); g.stroke(); g.setLineDash([]);
+            g.fillText(t + ' ' + fmt(p), x(s.i) + 4, y(p) - 3);
+        });
+
+        g.restore();
+
+        const lastC = V_candles[V_candles.length - 1];
+        if (lastC) {
+            const lastCandleX = x(V_candles.length - 1);
+            const lastCandleY = y(lastC.c);
+            g.save();
+            g.strokeStyle = isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.25)';
+            g.lineWidth = 1;
+            g.setLineDash([3, 3]);
+            g.beginPath();
+            if (offVal > 0) {
+                g.moveTo(12, lastCandleY);
+                g.lineTo(W - pad, lastCandleY);
+            } else {
+                g.moveTo(Math.min(lastCandleX, W - pad), lastCandleY);
+                g.lineTo(W - pad, lastCandleY);
+            }
+            g.stroke();
+            g.restore();
+
+            const u = lastC.c >= lastC.o, tagClr = u ? upClr : dnClr;
+            g.fillStyle = tagClr; g.fillRect(W - pad, y(lastC.c) - 9, pad, 18);
+            g.fillStyle = '#000'; g.font = '700 10px Roboto'; g.fillText(fmt(lastC.c), W - pad + 6, y(lastC.c) + 3);
+        }
+
+        g.strokeStyle = gridClr; g.beginPath(); g.moveTo(12, chartH); g.lineTo(W - pad, chartH); g.stroke();
+        g.fillStyle = txtClr; g.font = '9px Roboto';
+        const timeStep = Math.max(1, Math.floor(nVal / 4));
+        for (let i = st; i < end; i += timeStep) {
+            const dt = new Date(V_candles[i].t);
+            const timeStr = dt.getHours().toString().padStart(2, '0') + ':' + dt.getMinutes().toString().padStart(2, '0');
+            g.fillText(timeStr, x(i) - 12, chartH + 12);
+        }
+    }
+
+    function initInteractiveChartEvents(type, n) {
+        const cv = $(`#cv-${type}-${n}`);
+        if (!cv) return;
+
+        const getSt = () => {
+            const rect = cv.getBoundingClientRect();
+            const arr = [...activePointers.values()];
+            return {
+                mx: arr.reduce((s, p) => s + p.x, 0) / arr.length - rect.left,
+                d: arr.length > 1 ? Math.hypot(arr[0].x - arr[1].x, arr[0].y - arr[1].y) : 0
+            };
+        };
+
+        cv.onpointerdown = e => {
+            const rect = cv.getBoundingClientRect();
+            const xRel = e.clientX - rect.left;
+            if (xRel >= rect.width - 65) {
+                isDraggingPriceScale = true;
+                priceScaleDragStartY = e.clientY;
+                priceZoomAtStart = priceZoom;
+                cv.setPointerCapture(e.pointerId);
+                return;
+            }
+
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (activePointers.size > 1) {
+                cv.setPointerCapture(e.pointerId);
+            }
+            const q = getSt();
+            const curN = type === 'scanner' ? scannerN : signalsN;
+            const curOff = type === 'scanner' ? scannerOff : signalsOff;
+            const candles = type === 'scanner' ? scannerCandles : signalsCandles;
+            const bw = (cv.clientWidth - 65) / (curN + 5);
+            const end = candles.length - curOff;
+            const st = Math.max(0, end - curN);
+            gestureData = { n: curN, d: q.d, idx: st + q.mx / bw };
+        };
+
+        cv.onpointermove = e => {
+            if (isDraggingPriceScale) {
+                const totalDy = priceScaleDragStartY - e.clientY;
+                priceZoom = Math.min(15.0, Math.max(0.1, priceZoomAtStart * Math.exp(totalDy * 0.01)));
+                if (type === 'scanner') drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);
+                else drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);
+                return;
+            }
+
+            if (!activePointers.has(e.pointerId) || !gestureData) return;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            const q = getSt();
+            let curN = gestureData.n;
+            if (activePointers.size > 1 && gestureData.d > 10 && q.d > 10) {
+                curN = Math.min(350, Math.max(10, Math.round(gestureData.n * gestureData.d / q.d)));
+            }
+            const bw = (cv.clientWidth - 65) / (curN + 5);
+            const st = gestureData.idx - q.mx / bw;
+            const candles = type === 'scanner' ? scannerCandles : signalsCandles;
+            const newOff = Math.min(Math.max(-10, candles.length - curN), Math.max(-10, Math.round(candles.length - (st + curN))));
+            
+            if (type === 'scanner') {
+                scannerN = curN; scannerOff = newOff;
+                drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);
+            } else {
+                signalsN = curN; signalsOff = newOff;
+                drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);
+            }
+        };
+
+        cv.onpointerup = cv.onpointercancel = e => {
+            if (isDraggingPriceScale) { isDraggingPriceScale = false; }
+            activePointers.delete(e.pointerId);
+            if (!activePointers.size) {
+                gestureData = null;
+                requestAnimationFrame(() => {
+                    if (type === 'scanner') drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);
+                    else drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);
+                });
+            }
+        };
+
+        if (!cv._wheelAttached) {
+            cv._wheelAttached = true;
+            cv.addEventListener('wheel', e => {
+                const rect = cv.getBoundingClientRect();
+                const xRel = e.clientX - rect.left;
+                if (xRel >= rect.width - 65 || e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    priceZoom = Math.min(15.0, Math.max(0.1, priceZoom * (e.deltaY > 0 ? 0.95 : 1.05)));
+                    if (type === 'scanner') drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);
+                    else drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsCandles, signalsN, signalsOff);
+                }
+            }, { passive: false });
+        }
+    }
+
+    function setSubIndicator(type) {
+        SUB_INDICATOR = type;
+        save();
+        document.querySelectorAll('.subind-btn').forEach(b => b.classList.remove('on'));
+        $(`#subind-${type.toLowerCase()}`).classList.add('on');
+        draw();
+    }
+
+    function toggleScanScope() {
+        SCAN_SCOPE = SCAN_SCOPE === 'ALL' ? 'FAV' : 'ALL';
+        updateScanScopeUi();
+        saveState();
+        scan();
+    }
+
+    function updateScanScopeUi() {
+        $('#sw-all').classList.toggle('on', SCAN_SCOPE === 'ALL');
+        $('#sw-fav').classList.toggle('on', SCAN_SCOPE === 'FAV');
+    }
+
+    window._scannerResults = [];
+
+    async function scan(){
+        $('#sc').innerHTML='<p class="mut">Сканирую активы…</p>';
+        scannerActiveSignalIndex = null;
+        const res=[];
+        const checkList = SCAN_SCOPE === 'FAV' ? getFaves() : ALL_COINS;
+        if (!checkList.length) {
+            $('#sc').innerHTML='<p class="mut">Список избранного пуст. Добавьте активы через меню выбора.</p>';
+            return;
+        }
+        await Promise.all(checkList.map(async sym=>{
+            const r=await load(sym,scannerTf);
+            if (!r.D || !r.D.length) return;
+            const a=analyze(r.D);
+            a.sigs.filter(s=>s.i>=r.D.length-5).forEach(s=>res.push({sym,s,n:r.D.length,live:r.live,candles:r.D}));
+        }));
+        res.sort((a,b)=>b.s.i-b.n-(a.s.i-a.n));
+        window._scannerResults = res;
+        renderScanResults();
+    }
+
+    function renderScanResults() {
+        let res = window._scannerResults || [];
+        if (SCAN_FILTER === 'LONG') res = res.filter(x => x.s.dir > 0);
+        else if (SCAN_FILTER === 'SHORT') res = res.filter(x => x.s.dir < 0);
+
+        $('#sc').innerHTML=(res.length?'':'<div class="tile full mut">Свежих сигналов не найдено.</div>')+res.map((x,origIdx)=>{
+            const b=x.n-1-x.s.i;
+            return `
+                <div class="signal-card-pro ${x.s.dir > 0 ? 'long' : 'short'}" id="scanner-card-${origIdx}" onclick="toggleScannerSignal(${origIdx})" style="cursor: pointer;">
+                    <div class="signal-card-header" style="margin-bottom:8px;">
+                        <div class="signal-title-group">
+                            <div class="signal-asset-name">${x.sym}</div>
+                            <div class="signal-strat-name">${S[x.s.k].n} · ${b<=0?'только что':b+' св. назад'}</div>
+                        </div>
+                        <span class="tag ${x.s.dir > 0 ? 'up' : 'dn'}">${x.s.dir > 0 ? '▲ LONG' : '▼ SHORT'}</span>
+                    </div>
+                    <div id="scanner-chart-slot-${origIdx}"></div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function changeScannerTf(tf, n) {
+        scannerTf = tf;
+        const x = window._scannerResults[n];
+        const r = await load(x.sym, tf);
+        scannerCandles = r.D;
+        const a = analyze(r.D);
+        const freshSig = a.sigs[a.sigs.length - 1] || x.s;
+        x.s = freshSig;
+        x.n = r.D.length;
+        scannerN = 50; scannerOff = 0;
+        renderScannerCardContent(n);
+    }
+
+    async function changeSignalsTf(tf, n) {
+        signalsTf = tf;
+        const r = await load(cfg.sym, tf);
+        signalsCandles = r.D;
+        const a = analyze(r.D);
+        const list = a.sigs.slice().reverse();
+        const freshSig = list[n] || A.sigs[n];
+        if (freshSig) {
+            signalsN = 50; signalsOff = 0;
+            renderSignalsCardContent(n, freshSig);
+        }
+    }
+
+    function renderScannerCardContent(n) {
+        const x = window._scannerResults[n];
+        const s = x.s;
+        const rr = Math.abs(s.tp - s.entry) / Math.abs(s.entry - s.sl);
+
+        const slot = $(`#scanner-chart-slot-${n}`);
+        slot.innerHTML = `
+            <div class="scanner-tf-row" onclick="event.stopPropagation()">
+                ${TFS.map(t => `<button class="scanner-tf-btn ${t === scannerTf ? 'on' : ''}" onclick="changeScannerTf('${t}', ${n})">${t}</button>`).join('')}
+            </div>
+            <div class="grid3-cards" onclick="event.stopPropagation()">
+                <div class="card-box">
+                    <span>Вход</span>
+                    <strong style="color:var(--text-main);">${fmt(s.entry)}</strong>
+                </div>
+                <div class="card-box">
+                    <span>Стоп</span>
+                    <strong class="dn">${fmt(s.sl)}</strong>
+                </div>
+                <div class="card-box">
+                    <span>Цель</span>
+                    <strong class="up">${fmt(s.tp)}</strong>
+                </div>
+            </div>
+            <div class="canvas-container-scanner" onclick="event.stopPropagation()">
+                <canvas id="cv-scanner-${n}"></canvas>
+                <div class="chart-controls">
+                    <button class="chart-btn" onclick="event.stopPropagation(); closeScannerCard(${n})" title="Закрыть график">✕</button>
+                </div>
+            </div>
+            <div style="margin-top: 10px;" onclick="event.stopPropagation()">
+                <p class="mut" style="margin:0;"><b>Логика:</b> ${s.note}. RR: ${rr.toFixed(2)}</p>
+            </div>
+        `;
+        drawInteractiveChart('scanner', n, scannerCandles, scannerN, scannerOff);
+        initInteractiveChartEvents('scanner', n);
+    }
+
+    function getSignalsCardInnerHtml(n, s) {
+        const rr = Math.abs(s.tp - s.entry) / Math.abs(s.entry - s.sl);
+        return `
+            <div class="scanner-tf-row" onclick="event.stopPropagation()">
+                ${TFS.map(t => `<button class="scanner-tf-btn ${t === signalsTf ? 'on' : ''}" onclick="changeSignalsTf('${t}', ${n})">${t}</button>`).join('')}
+            </div>
+            <div class="grid3-cards" onclick="event.stopPropagation()">
+                <div class="card-box">
+                    <span>Вход</span>
+                    <strong style="color:var(--text-main);">${fmt(s.entry)}</strong>
+                </div>
+                <div class="card-box">
+                    <span>Стоп</span>
+                    <strong class="dn">${fmt(s.sl)}</strong>
+                </div>
+                <div class="card-box">
+                    <span>Цель</span>
+                    <strong class="up">${fmt(s.tp)}</strong>
+                </div>
+            </div>
+            <div class="canvas-container-scanner" onclick="event.stopPropagation()">
+                <canvas id="cv-signals-${n}"></canvas>
+                <div class="chart-controls">
+                    <button class="chart-btn" onclick="event.stopPropagation(); closeSignalsCard(${n})" title="Закрыть график">✕</button>
+                </div>
+            </div>
+            <div style="margin-top: 10px;" onclick="event.stopPropagation()">
+                <p class="mut" style="margin:0;"><b>Логика:</b> ${s.note}. RR: ${rr.toFixed(2)}</p>
+            </div>
+        `;
+    }
+
+    function renderSignalsCardContent(n, s) {
+        const slot = $(`#signals-chart-slot-${n}`);
+        if (slot) {
+            slot.innerHTML = getSignalsCardInnerHtml(n, s);
+            drawInteractiveChart('signals', n, signalsCandles, signalsN, signalsOff);
+            initInteractiveChartEvents('signals', n);
+        }
+    }
+
+    async function toggleScannerSignal(n) {
+        if (scannerActiveSignalIndex === n) { closeScannerCard(n); return; }
+        if (scannerActiveSignalIndex !== null) closeScannerCard(scannerActiveSignalIndex);
+        scannerActiveSignalIndex = n;
+        $(`#scanner-card-${n}`).classList.add('on');
+        const x = window._scannerResults[n];
+        scannerCandles = x.candles;
+        scannerN = 50; scannerOff = 0; scannerTf = cfg.tf;
+        renderScannerCardContent(n);
+    }
+
+    function closeScannerCard(n) {
+        if (scannerActiveSignalIndex === n) scannerActiveSignalIndex = null;
+        const card = $(`#scanner-card-${n}`);
+        if (card) { card.classList.remove('on'); $(`#scanner-chart-slot-${n}`).innerHTML = ''; }
+    }
+
+    async function toggleSignalsSignal(n) {
+        if (signalsActiveSignalIndex === n) { closeSignalsCard(n); return; }
+        if (signalsActiveSignalIndex !== null) closeSignalsCard(signalsActiveSignalIndex);
+        signalsActiveSignalIndex = n;
+        
+        const card = $(`#signals-card-${n}`);
+        if (card) card.classList.add('on');
+        
+        signalsCandles = D;
+        signalsN = 50; signalsOff = 0; signalsTf = cfg.tf;
+        let list = A.sigs.slice().reverse();
+        if (SIGNALS_FILTER === 'LONG') list = list.filter(s => s.dir > 0);
+        else if (SIGNALS_FILTER === 'SHORT') list = list.filter(s => s.dir < 0);
+        const s = list[n];
+        if (s) {
+            const slot = $(`#signals-chart-slot-${n}`);
+            if (slot) slot.innerHTML = getSignalsCardInnerHtml(n, s);
+            drawInteractiveChart('signals', n, signalsCandles, signalsN, signalsOff);
+            initInteractiveChartEvents('signals', n);
+        }
+    }
+
+    function closeSignalsCard(n) {
+        if (signalsActiveSignalIndex === n) signalsActiveSignalIndex = null;
+        const card = $(`#signals-card-${n}`);
+        if (card) { card.classList.remove('on'); $(`#signals-chart-slot-${n}`).innerHTML = ''; }
+    }
+
+    function tab(n){
+        ACTIVE_TAB = n;
+        saveState();
+        document.querySelectorAll('.tab').forEach((e,i)=>e.classList.toggle('on',i==n));
+        document.querySelectorAll('#nv button').forEach((e,i)=>e.classList.toggle('on',i==n));
+        
+        const isMarketOrSettings = (n === 3 || n === 4);
+        $('#global-tabs-header').style.display = isMarketOrSettings ? 'none' : 'flex';
+        $('#global-controls-row').style.display = isMarketOrSettings ? 'none' : 'flex';
+
+        scrollTo(0,0);
+        if(n==0&&D.length)draw();
+        if(n==1)lst();
+        if(n==2&&!$('#sc').children.length)scan();
+        if(n==3){drawGauge();fetchDomHistory();updateMarketOverview();}
+    }
+    
+    function setupRefreshLoop() {
+        if (refreshTimer) clearInterval(refreshTimer);
+        if (cfg.rate > 0) {
+            refreshTimer = setInterval(() => {
+                if (!document.hidden) refresh();
+            }, cfg.rate);
+        }
+        const rateTxt = cfg.rate === 1000 ? '1 сек' : cfg.rate === 2000 ? '2 сек' : cfg.rate === 5000 ? '5 сек' : cfg.rate === 10000 ? '10 сек' : cfg.rate === 30000 ? '30 сек' : 'Отключено';
+        $('#rate-btn').textContent = rateTxt;
+    }
+
+    function setMarketType(type) {
+        MARKET_TYPE = type;
+        saveState();
+        $('#tab-spot').classList.toggle('on', type==='SPOT');
+        $('#tab-fut').classList.toggle('on', type==='FUTURES');
+        $('#tab-stocks').classList.toggle('on', type==='STOCKS');
+        $('#tab-fav').classList.toggle('on', type==='FAVS');
+        
+        const isFut = type === 'FUTURES';
+        const levWrap = $('#lev-field-wrap');
+        const rmBox = $('#rm-box');
+        if (levWrap && rmBox) {
+            levWrap.style.display = isFut ? 'flex' : 'none';
+            rmBox.classList.toggle('has-lev', isFut);
+        }
+        initCoinsList();
+    }
+
+    async function initCoinsList() {
+        if (MARKET_TYPE === 'STOCKS') {
+            if (isStockMarketClosed()) {
+                $('#st').textContent = 'Рынок закрыт';
+                $('#st').className = 'pill demo';
+                $('#sy').textContent = cfg.sym + ' (Акция)';
+                $('#pr').textContent = '—';
+                $('#ch').innerHTML = '<span class="chg-badge mut">Рынок закрыт (выходной день)</span>';
+                $('#vol-24h').textContent = '—';
+                $('#tr').textContent = 'Рынок не работает';
+                $('#vo').textContent = '—';
+                ALL_COINS = stocksCoinsList;
+                coins();
+                return;
+            }
+            const stocksData = await fetchStockData();
+            TICKER_DATA = stocksData;
+            ALL_COINS = Object.keys(stocksData).length ? Object.keys(stocksData) : stocksCoinsList;
+        } else {
+            const crypto = await fetchCryptoData();
+            TICKER_DATA = crypto;
+            
+            if (MARKET_TYPE === 'SPOT') ALL_COINS = [...new Set([...spotCoinsList, ...Object.keys(crypto)])].sort();
+            else if (MARKET_TYPE === 'FUTURES') ALL_COINS = [...new Set([...futuresCoinsList, ...Object.keys(crypto)])].sort();
+            else ALL_COINS = getFaves();
+        }
+
+        if (!ALL_COINS.includes(cfg.sym)) {
+            cfg.sym = ALL_COINS[0] || 'BTC';
+        }
+
+        coins();
+        refresh(1);
+    }
+
+    function coins(){
+        $('#coin-select').textContent = cfg.sym + (stocksCoinsList.includes(cfg.sym) ? ' (Акция)' : ' / USDT');
+        $('#tf-select-btn').textContent = cfg.tf;
+        $('#rr-btn').textContent = cfg.rr;
+        $('#lev-btn').textContent = cfg.lev + 'x';
+        document.querySelectorAll('.chart-tf-pill').forEach(b => {
+            b.classList.toggle('on', b.textContent === cfg.tf);
+        });
+    }
+
+    function openCoinModal() {
+        $('#coin-modal').classList.add('on');
+        const isFavTab = MARKET_TYPE === 'FAVS';
+        $('#fav-category-tools').style.display = isFavTab ? 'flex' : 'none';
+        updateCoinListUi();
+    }
+    function closeCoinModal() { $('#search-coin').value = ''; $('#coin-modal').classList.remove('on'); }
+
+    function setFavCategory(cat) {
+        FAV_CATEGORY = cat;
+        $('#fav-cat-all').classList.toggle('on', cat === 'ALL');
+        $('#fav-cat-spot').classList.toggle('on', cat === 'SPOT');
+        $('#fav-cat-fut').classList.toggle('on', cat === 'FUT');
+        $('#fav-cat-stocks').classList.toggle('on', cat === 'STOCKS');
+        updateCoinListUi();
+    }
+
+    function openTfModal() {
+        $('#tf-modal').classList.add('on');
+        $('#tf-grid-body').innerHTML = TFS.map(t => `<div class="custom-select-item ${t===cfg.tf?'on':''}" onclick="selectTf('${t}')"><span>${t}</span>${t===cfg.tf?'✓':''}</div>`).join('');
+    }
+    function closeTfModal() { $('#tf-modal').classList.remove('on'); }
+
+    function selectTf(t) {
+        cfg.tf = t; userPanned = false; off = 0; save(); 
+        coins(); refresh(); closeTfModal();
+    }
+
+    function openGenericModal(title, options, currentValue, onSelect) {
+        $('#generic-modal-title').textContent = title;
+        $('#generic-modal-list').innerHTML = options.map((opt, idx) => `
+            <div class="custom-select-item ${opt.val == currentValue ? 'on' : ''}" data-modal-idx="${idx}">
+                <span>${opt.lbl}</span>
+                ${opt.val == currentValue ? '✓' : ''}
+            </div>
+        `).join('');
+
+        $('#generic-modal-list').onclick = (e) => {
+            const item = e.target.closest('.custom-select-item');
+            if (!item) return;
+            const idx = item.dataset.modalIdx;
+            const selectedOpt = options[idx];
+            if (selectedOpt) {
+                onSelect(selectedOpt.val);
+                closeGenericModal();
+            }
+        };
+
+        $('#generic-modal').classList.add('on');
+    }
+    function closeGenericModal() { $('#generic-modal').classList.remove('on'); }
+
+    function openRrModal() {
+        openGenericModal('Выбор Risk-Reward Ratio', [{val: 1.5, lbl: '1.5'}, {val: 2, lbl: '2.0'}, {val: 3, lbl: '3.0'}, {val: 4, lbl: '4.0'}], cfg.rr, (val) => {
+            cfg.rr = parseFloat(val); save(); A = analyze(D); sel = null; coins(); render();
+        });
+    }
+
+    function openLevModal() {
+        openGenericModal('Выбор кредитного плеча', [{val: 1, lbl: '1x'}, {val: 2, lbl: '2x'}, {val: 5, lbl: '5x'}, {val: 10, lbl: '10x'}, {val: 20, lbl: '20x'}, {val: 50, lbl: '50x'}, {val: 100, lbl: '100x'}], cfg.lev, (val) => {
+            cfg.lev = parseInt(val); save(); coins(); render();
+        });
+    }
+
+    function openThemeModal() {
+        openGenericModal('Тема интерфейса', [{val: 'dark', lbl: 'Тёмная'}, {val: 'light', lbl: 'Светлая'}, {val: 'auto', lbl: 'Автоматическая'}], cfg.theme || 'dark', (val) => { cfg.theme = val; applyVisualStyles(); });
+    }
+
+    function openAccentModal() {
+        openGenericModal('Цвет акцента', [
+            {val: 'yellow', lbl: 'Жёлтый'},
+            {val: 'cyan', lbl: 'Неоновый Cyan'},
+            {val: 'pink', lbl: 'Киберпанк Pink'},
+            {val: 'emerald', lbl: 'Премиум Emerald'},
+            {val: 'orange', lbl: 'Сочный Оранжевый'},
+            {val: 'purple', lbl: 'Фиолетовый неон'},
+            {val: 'blue', lbl: 'Королевский Синий'}
+        ], cfg.accent || 'yellow', (val) => { cfg.accent = val; applyVisualStyles(); });
+    }
+
+    function openRadiusModal() {
+        openGenericModal('Скругление карточек', [
+            {val: 'sm', lbl: 'Маленькое (6px)'},
+            {val: 'md', lbl: 'Среднее (10px)'},
+            {val: 'lg', lbl: 'Большое (16px)'},
+            {val: 'full', lbl: 'Максимальное (Капсулы)'}
+        ], cfg.radius || 'md', (val) => { cfg.radius = val; applyVisualStyles(); });
+    }
+
+    function openFontModal() {
+        openGenericModal('Шрифт интерфейса', [
+            {val: 'roboto', lbl: 'Roboto (Классический)'},
+            {val: 'montserrat', lbl: 'Montserrat (Современный)'},
+            {val: 'mono', lbl: 'Monospace (Технический)'}
+        ], cfg.font || 'roboto', (val) => { cfg.font = val; applyVisualStyles(); });
+    }
+
+    function openChartTypeModal() {
+        openGenericModal('Тип графика', [{val: 'candles', lbl: 'Свечи (Candles)'}, {val: 'line', lbl: 'Линейный (Line)'}], cfg.chartType || 'candles', (val) => { cfg.chartType = val; save(); applyVisualStyles(); });
+    }
+
+    function openChartCandleStyleModal() {
+        openGenericModal('Цветовая схема свечей', [{val: 'classic', lbl: 'Классика'}, {val: 'neon', lbl: 'Неон (Яркие)'}, {val: 'monochrome', lbl: 'Монохром'}], cfg.candleStyle || 'classic', (val) => { cfg.candleStyle = val; save(); applyVisualStyles(); });
+    }
+
+    function openStockApiModal() {
+        openGenericModal('API котировок акций', [
+            {val: 'yahoo', lbl: 'Yahoo Finance (через Proxy)'},
+            {val: 'twelvedata', lbl: 'Twelve Data'},
+            {val: 'marketstack', lbl: 'Marketstack'}
+        ], cfg.stockApi || 'yahoo', (val) => {
+            cfg.stockApi = val; save(); applyVisualStyles(); initCoinsList();
+        });
+    }
+
+    function openCryptoApiModal() {
+        openGenericModal('API криптовалют', [
+            {val: 'binance', lbl: 'Binance (Основной)'},
+            {val: 'bybit', lbl: 'Bybit v5'},
+            {val: 'okx', lbl: 'OKX v5'},
+            {val: 'kucoin', lbl: 'KuCoin'}
+        ], cfg.cryptoApi || 'binance', (val) => {
+            cfg.cryptoApi = val; save(); applyVisualStyles(); initCoinsList();
+        });
+    }
+
+    function openRateModal() {
+        openGenericModal('Интервал обновления', [{val: 1000, lbl: '1 сек'}, {val: 2000, lbl: '2 сек'}, {val: 5000, lbl: '5 сек'}, {val: 10000, lbl: '10 сек'}, {val: 30000, lbl: '30 сек'}, {val: 0, lbl: 'Отключено'}], cfg.rate, (val) => {
+            cfg.rate = parseInt(val); save(); setupRefreshLoop();
+        });
+    }
+
+    function toggleSortMode(mode) {
+        if (mode === 'GAIN') {
+            if (SORT_MODE === 'GAIN') SORT_DIR_GAIN = SORT_DIR_GAIN === 'DESC' ? 'ASC' : 'DESC';
+            else { SORT_MODE = 'GAIN'; SORT_DIR_GAIN = 'DESC'; }
+        } else if (mode === 'VOL') {
+            if (SORT_MODE === 'VOL') SORT_DIR_VOL = SORT_DIR_VOL === 'DESC' ? 'ASC' : 'DESC';
+            else { SORT_MODE = 'VOL'; SORT_DIR_VOL = 'DESC'; }
+        } else { SORT_MODE = 'FAV'; }
+        updateSortButtonsUi(); updateCoinListUi();
+    }
+
+    function updateSortButtonsUi() {
+        $('#sort-fav-btn').classList.toggle('on', SORT_MODE === 'FAV');
+        $('#sort-gain-btn').classList.toggle('on', SORT_MODE === 'GAIN');
+        $('#sort-vol-btn').classList.toggle('on', SORT_MODE === 'VOL');
+        $('#sort-gain-btn').textContent = `Рост 24h ${SORT_DIR_GAIN === 'DESC' ? '↓' : '↑'}`;
+        $('#sort-vol-btn').textContent = `Объем ${SORT_DIR_VOL === 'DESC' ? '↓' : '↑'}`;
+    }
+
+    function updateCoinListUi() {
+        let list = [...ALL_COINS];
+        if (MARKET_TYPE === 'FAVS') {
+            let faves = getFaves();
+            if (FAV_CATEGORY === 'SPOT') faves = faves.filter(s => spotCoinsList.includes(s));
+            else if (FAV_CATEGORY === 'FUT') faves = faves.filter(s => futuresCoinsList.includes(s));
+            else if (FAV_CATEGORY === 'STOCKS') faves = faves.filter(s => stocksCoinsList.includes(s));
+            list = faves;
+        }
+
+        if (SORT_MODE === 'GAIN') {
+            list.sort((a, b) => (SORT_DIR_GAIN === 'DESC' ? (TICKER_DATA[b]?.c ?? -999) - (TICKER_DATA[a]?.c ?? -999) : (TICKER_DATA[a]?.c ?? -999) - (TICKER_DATA[b]?.c ?? -999)));
+        } else if (SORT_MODE === 'VOL') {
+            list.sort((a, b) => (SORT_DIR_VOL === 'DESC' ? (TICKER_DATA[b]?.v ?? 0) - (TICKER_DATA[a]?.v ?? 0) : (TICKER_DATA[a]?.v ?? 0) - (TICKER_DATA[b]?.v ?? 0)));
+        } else {
+            const faves = getFaves();
+            list.sort((a, b) => (faves.includes(b) ? 1 : 0) - (faves.includes(a) ? 1 : 0) || a.localeCompare(b));
+        }
+
+        const search = $('#search-coin').value.toUpperCase();
+        if (search) list = list.filter(c => c.includes(search));
+
+        $('#coin-list-body').innerHTML = list.map(c => {
+            const d = TICKER_DATA[c] || {}, is_fav = isFav(c);
+            return `<div class="coin-item ${c===cfg.sym?'on':''}" onclick="selectCoin('${c}')"><div class="coin-info"><button class="star-icn ${is_fav?'on':''}" onclick="event.stopPropagation(); toggleFav('${c}')"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></button><div><div class="coin-ticker">${c}</div><div class="coin-vol">Объем: ${d.v?fmtVol(d.v):'—'}</div></div></div><div><div class="coin-price">${d.p?fmt(d.p):'—'}</div><div class="chg-badge ${d.c>=0?'up':'dn'}">${d.c!=null?(d.c>=0?'+':'')+d.c.toFixed(2)+'%':'—'}</div></div></div>`;
+        }).join('') || '<p class="mut" style="text-align:center; padding:20px;">Список пуст</p>';
+    }
+
+    function selectCoin(sym) {
+        cfg.sym = sym; userPanned = false; off = 0; save(); 
+        coins(); refresh(); closeCoinModal();
+    }
+
+    document.querySelectorAll('#nv button').forEach(b=>b.onclick=()=>tab(+b.dataset.t));
+
+    $('#so').innerHTML = Object.keys(S).map(k => `
+        <div class="strategy-chip ${cfg.on[k] ? 'on' : ''}" onclick="toggleStrategyChip('${k}')" id="strat-chip-${k}">
+            <div class="strategy-chip-top">
+                <span class="strategy-chip-title">${S[k].n}</span>
+                <button class="strategy-info-btn" onclick="event.stopPropagation(); openStrategyInfo('${k}')" title="Подробнее">?</button>
+            </div>
+            <span class="strategy-chip-desc">${S[k].short}</span>
+        </div>
+    `).join('');
+
+    window.toggleStrategyChip = function(k) {
+        cfg.on[k] = cfg.on[k] ? 0 : 1;
+        save();
+        const chip = $(`#strat-chip-${k}`);
+        if (chip) {
+            chip.classList.toggle('on', cfg.on[k]);
+        }
+        A = analyze(D);
+        sel = null;
+        render();
+    };
+
+    window.openStrategyInfo = function(k) {
+        const strat = S[k];
+        if (!strat) return;
+        
+        openGenericModal(`О стратегии: ${strat.n}`, [
+            { val: 'desc', lbl: strat.d }
+        ], 'desc', () => {});
+        
+        const listEl = $('#generic-modal-list');
+        if (listEl) {
+            listEl.innerHTML = `
+                <div style="padding: 10px 4px; font-size: 14px; line-height: 1.5; color: var(--text-main);">
+                    <p style="margin: 0 0 10px 0;"><b>Суть стратегии:</b><br>${strat.d}</p>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 12px;">Стратегия анализирует текущий таймфрейм и автоматически находит оптимальные точки входа с расчетом риск-менеджмента (SL / TP).</p>
+                </div>
+            `;
+        }
+    };
+    
+    $('#cap').value=cfg.cap;$('#rk').value=cfg.rk;$('#cap').oninput=e=>{cfg.cap=+e.target.value||0;save();updateRiskCalc();renderActiveStrategiesCards()};$('#rk').oninput=e=>{cfg.rk=+e.target.value||0;save();updateRiskCalc();renderActiveStrategiesCards()};
+    $('#tg-token').value = cfg.tgToken || ''; $('#tg-chat').value = cfg.tgChat || '';
+    $('#tg-token').oninput = save; $('#tg-chat').oninput = save;
+
+    $('#ind-btn').onclick = (e) => { e.stopPropagation(); $('#indicators-popover').classList.toggle('on'); $('#chart-popover').classList.remove('on'); };
+    $('#cfg-btn').onclick = (e) => { e.stopPropagation(); $('#chart-popover').classList.toggle('on'); $('#indicators-popover').classList.remove('on'); };
+    document.addEventListener('click', (e) => { 
+        if (!e.target.closest('#chart-popover') && !e.target.closest('#cfg-btn') && !e.target.closest('#indicators-popover') && !e.target.closest('#ind-btn')) { 
+            $('#chart-popover').classList.remove('on'); 
+            $('#indicators-popover').classList.remove('on'); 
+        } 
+    });
+
+    $('#em').checked=!!cfg.em;$('#em').onchange=e=>{cfg.em=e.target.checked?1:0;save();draw()};
+    $('#fv').checked=!!cfg.fvg;$('#fv').onchange=e=>{cfg.fvg=e.target.checked?1:0;save();draw()};
+    $('#ob').checked=!!cfg.ob;$('#ob').onchange=e=>{cfg.ob=e.target.checked?1:0;save();draw()};
+    $('#lq').checked=!!cfg.liq;$('#lq').onchange=e=>{cfg.liq=e.target.checked?1:0;save();draw()};
+    $('#sig-arrows').checked=!!cfg.sigArrows;$('#sig-arrows').onchange=e=>{cfg.sigArrows=e.target.checked?1:0;save();draw()};
+    $('#chart-extremums-chk').checked = !!cfg.showExtremums; $('#chart-extremums-chk').onchange = e => { cfg.showExtremums = e.target.checked ? 1 : 0; save(); draw(); };
+
+    $('#chart-grid-chk').checked = !!cfg.gridLines; $('#chart-grid-chk').onchange = e => { cfg.gridLines = e.target.checked ? 1 : 0; save(); draw(); };
+    $('#chart-thick-chk').checked = !!cfg.thickCandles; $('#chart-thick-chk').onchange = e => { cfg.thickCandles = e.target.checked ? 1 : 0; save(); draw(); };
+
+    $('#sound-chk').checked = !!cfg.sound; $('#sound-chk').onchange = e => { cfg.sound = e.target.checked ? 1 : 0; save(); };
+    $('#vib-chk').checked = !!cfg.vib; $('#vib-chk').onchange = e => { cfg.vib = e.target.checked ? 1 : 0; save(); if(cfg.vib) try{navigator.vibrate&&navigator.vibrate(100)}catch(x){}; };
+    $('#sb').onclick=scan;
+
+    $('#fs-btn').onclick = () => {
+        const target = $('#chart-card');
+        if (!document.fullscreenElement) {
+            if (target.requestFullscreen) target.requestFullscreen();
+            else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        }
+    };
+
+    function rotateScreen(orientationType) {
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock(orientationType).catch(err => {
+                console.log("Orientation lock not supported or allowed:", err);
+            });
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        const isFS = !!document.fullscreenElement;
+        $('#rotate-h-btn').style.display = isFS ? 'flex' : 'none';
+        $('#rotate-v-btn').style.display = isFS ? 'flex' : 'none';
+        draw();
+    });
+
+    const cv=$('#cv'),activePointers=new Map();let gestureData=null;
+    const getSt=()=>{const r=cv.getBoundingClientRect(),a=[...activePointers.values()];return{mx:a.reduce((s,p)=>s+p.x,0)/a.length-r.left,d:a.length>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0}};
+    const gbeg=()=>{if(!activePointers.size){gestureData=null;return}const q=getSt(),st=Math.max(0,D.length-off-N),bw=(cv.clientWidth-65)/N;gestureData={n:N,d:q.d,idx:st+q.mx/bw}};
+    
+    cv.onpointerdown=e=>{
+        const rect = cv.getBoundingClientRect();
+        const xRel = e.clientX - rect.left;
+        const yRel = e.clientY - rect.top;
+
+        if (lastTagClickCoords && xRel >= lastTagClickCoords.x1 && xRel <= lastTagClickCoords.x2 && yRel >= lastTagClickCoords.y1 && yRel <= lastTagClickCoords.y2) {
+            off = 0;
+            userPanned = false;
+            priceZoom = 1.0;
+            priceCenterOffset = 0;
+            draw();
+            return;
+        }
+
+        if (xRel >= rect.width - 65) {
+            isDraggingPriceScale = true;
+            priceScaleDragStartY = e.clientY;
+            priceZoomAtStart = priceZoom;
+            cv.setPointerCapture(e.pointerId);
+            return;
+        }
+
+        activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+        if (activePointers.size > 1) {
+            cv.setPointerCapture(e.pointerId);
+        }
+        gbeg();
+    };
+
+    cv.onpointermove=e=>{
+        if (isDraggingPriceScale) {
+            const totalDy = priceScaleDragStartY - e.clientY;
+            priceZoom = Math.min(15.0, Math.max(0.1, priceZoomAtStart * Math.exp(totalDy * 0.01)));
+            draw();
+            return;
+        }
+
+        if(!activePointers.has(e.pointerId)||!gestureData)return;
+        activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+        const q=getSt();let n=gestureData.n;
+        if(activePointers.size>1&&gestureData.d>10&&q.d>10)n=Math.min(350,Math.max(10,Math.round(gestureData.n*gestureData.d/q.d)));
+        const bw=(cv.clientWidth-65)/n,st=gestureData.idx-q.mx/bw;
+        N=n;userPanned=true;
+        off=Math.min(Math.max(-10,D.length-n),Math.max(-10,Math.round(D.length-(st+n))));
+        draw();
+    };
+
+    cv.onpointerup=cv.onpointercancel=e=>{
+        if (isDraggingPriceScale) { isDraggingPriceScale = false; }
+        activePointers.delete(e.pointerId);
+        gbeg();
+        requestAnimationFrame(() => {
+            draw();
+            setTimeout(draw, 50);
+        });
+    };
+
+    if (!cv._wheelAttached) {
+        cv._wheelAttached = true;
+        cv.addEventListener('wheel', e => {
+            const rect = cv.getBoundingClientRect();
+            const xRel = e.clientX - rect.left;
+            if (xRel >= rect.width - 65 || e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                priceZoom = Math.min(15.0, Math.max(0.1, priceZoom * (e.deltaY > 0 ? 0.95 : 1.05)));
+                draw();
+            }
+        }, { passive: false });
+    }
+
+    addEventListener('resize',()=>{draw();if(scannerActiveSignalIndex !== null)drawInteractiveChart('scanner', scannerActiveSignalIndex, scannerCandles, scannerN, scannerOff);if(signalsActiveSignalIndex !== null)drawInteractiveChart('signals', signalsActiveSignalIndex, signalsCandles, signalsN, signalsOff);drawGauge();drawDomHistory();updateMarketOverview();});
+
+    applyVisualStyles();
+    setupRefreshLoop();
+    updateScanScopeUi();
+    
+    document.querySelectorAll('.subind-btn').forEach(b => b.classList.remove('on'));
+    const activeSubBtn = $(`#subind-${SUB_INDICATOR.toLowerCase()}`);
+    if (activeSubBtn) activeSubBtn.classList.add('on');
+
+    setMarketType(MARKET_TYPE);
+    tab(ACTIVE_TAB);
+</script>
+</body>
+                  </html>
